@@ -1,0 +1,9 @@
+# Ignore node modules and build outputs
+node_modules
+dist
+build
+.env
+.env.*
+coverage
+.next
+out
