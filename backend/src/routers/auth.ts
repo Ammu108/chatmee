@@ -3,7 +3,6 @@ import { eq } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
 import { userTable } from "../db/user-schema.js";
-import cloudinary from "../lib/cloudiary.js";
 import { generateToken } from "../lib/utils.js";
 
 export const signup = async (req: Request, res: Response) => {
@@ -124,48 +123,6 @@ export const logout = (_req: Request, res: Response) => {
     return res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.log("Error in logout the account", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-export const updateProfile = async (req: Request, res: Response) => {
-  try {
-    const { profilePicture } = req.body;
-    const userId = res.locals.user.id;
-
-    if (!profilePicture) {
-      return res.status(400).json({ message: "Profile picture is required" });
-    }
-
-    // Update user profile picture
-    const response = await cloudinary.uploader.upload(profilePicture, {
-      folder: "profile_pictures",
-    });
-    // Update user in database
-    const [updatedUser] = await db
-      .update(userTable)
-      .set({ profilePicture: response.secure_url })
-      .where(eq(userTable.id, userId))
-      .returning();
-
-    return res.status(200).json({
-      message: "Profile picture updated successfully",
-      user: updatedUser,
-    });
-  } catch (error) {
-    console.log("Error in updating profile picture", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-export const checkAuth = (_req: Request, res: Response) => {
-  try {
-    res.status(200).json({
-      message: "User is authenticated",
-      user: res.locals.user,
-    });
-  } catch (error) {
-    console.log("Error in checking authentication", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

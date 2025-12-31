@@ -1,8 +1,8 @@
+import { eq } from "drizzle-orm";
+import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import type { Request, Response, NextFunction } from "express";
 import { db } from "../db/index.js";
 import { userTable } from "../db/user-schema.js";
-import { eq } from "drizzle-orm";
 
 export const protectRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {
