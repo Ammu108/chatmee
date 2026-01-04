@@ -17,11 +17,13 @@ export const signupApi = async (formData: SignUpFormData) => {
     body: JSON.stringify(formData),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    throw new Error("signup failed");
+    throw new Error(data.message || "signup failed");
   }
 
-  return res.json();
+  return data;
 };
 
 // =================== Login API ===================
@@ -40,11 +42,13 @@ export const loginApi = async (formData: LoginFormData) => {
     body: JSON.stringify(formData),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    throw new Error("login failed");
+    throw new Error(data.message || "login failed");
   }
 
-  return res.json();
+  return data;
 };
 
 // =================== Logout API ===================

@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Spinner } from "../../components/ui/spinner";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import { useLogin, useSignUp } from "../../hooks/auth-hook";
 
 const AuthForm = () => {
@@ -14,8 +21,8 @@ const AuthForm = () => {
     password: "",
   });
 
-  const { login } = useLogin();
-  const { signup } = useSignUp();
+  const { login, loading: loginLoading, error: loginError } = useLogin();
+  const { signup, loading: signupLoading, error: signError } = useSignUp();
 
   const navigate = useNavigate();
 
@@ -27,16 +34,21 @@ const AuthForm = () => {
   const handleForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (activeTab === "login") {
-      login({ email: data.email, password: data.password });
+    try {
+      if (activeTab === "login") {
+        await login({ email: data.email, password: data.password });
+      } else {
+        await signup({
+          username: data.username,
+          email: data.email,
+          password: data.password,
+        });
+      }
+
+      // navigate only success
       navigate("/");
-    } else {
-      signup({
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      });
-      navigate("/");
+    } catch (error) {
+      console.log("Authentication failed!", error);
     }
   };
 
@@ -65,7 +77,9 @@ const AuthForm = () => {
 
         {activeTab === "login" ? (
           <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Welcome Back</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Welcome Back
+            </h1>
             <p className="text-dark-20 text-xs md:text-sm">
               Log in to your account to continue.
             </p>
@@ -84,7 +98,10 @@ const AuthForm = () => {
         <form onSubmit={handleForm}>
           <TabsContent value="login" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label htmlFor="login-email" className="text-sm font-medium text-white">
+              <Label
+                htmlFor="login-email"
+                className="text-sm font-medium text-white"
+              >
                 Email
               </Label>
               <Input
@@ -99,7 +116,10 @@ const AuthForm = () => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="login-password" className="text-sm font-medium text-white">
+                <Label
+                  htmlFor="login-password"
+                  className="text-sm font-medium text-white"
+                >
                   Password
                 </Label>
                 {/* <button
@@ -119,14 +139,29 @@ const AuthForm = () => {
                 className="h-11 text-gray-300"
               />
             </div>
-            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
-              Log In
+            <div className="space-y-2">
+              {loginError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{loginError}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+            <Button
+              type="submit"
+              variant="secondary"
+              className="w-full h-11 mt-6"
+              size="lg"
+            >
+              {loginLoading ? <Spinner /> : "Log In"}
             </Button>
           </TabsContent>
 
           <TabsContent value="signup" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label htmlFor="signup-username" className="text-sm font-medium text-white">
+              <Label
+                htmlFor="signup-username"
+                className="text-sm font-medium text-white"
+              >
                 Username
               </Label>
               <Input
@@ -140,7 +175,10 @@ const AuthForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="signup-email" className="text-sm font-medium text-white">
+              <Label
+                htmlFor="signup-email"
+                className="text-sm font-medium text-white"
+              >
                 Email
               </Label>
               <Input
@@ -154,7 +192,10 @@ const AuthForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="signup-password" className="text-sm font-medium text-white">
+              <Label
+                htmlFor="signup-password"
+                className="text-sm font-medium text-white"
+              >
                 Password
               </Label>
               <Input
@@ -181,8 +222,20 @@ const AuthForm = () => {
                 className="h-11 text-gray-300"
               />
             </div> */}
-            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
-              Create Account
+            <div className="space-y-2">
+              {signError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{signError}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+            <Button
+              type="submit"
+              variant="secondary"
+              className="w-full h-11 mt-6"
+              size="lg"
+            >
+              {signupLoading ? <Spinner /> : "Create Account"}
             </Button>
           </TabsContent>
         </form>
@@ -190,7 +243,10 @@ const AuthForm = () => {
 
       <div className="mt-6 text-center text-xs md:text-sm text-dark-20">
         By continuing, you agree to our and{" "}
-        <Link to="/privacy-policy" className="text-primary-100 underline hover:cursor-pointer">
+        <Link
+          to="/privacy-policy"
+          className="text-primary-100 underline hover:cursor-pointer"
+        >
           Privacy Policy
         </Link>
       </div>

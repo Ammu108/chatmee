@@ -5,6 +5,8 @@ import { db } from "../db/index.js";
 import { userTable } from "../db/user-schema.js";
 import { generateToken } from "../lib/utils.js";
 
+// =================== Signup API ===================
+
 export const signup = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
 
@@ -56,14 +58,12 @@ export const signup = async (req: Request, res: Response) => {
     // Respond with user data excluding password
     return res.status(201).json({
       message: "User created successfully",
-      data: {
-        token: token,
-        user: {
-          id: newUser.id,
-          username: newUser.username,
-          email: newUser.email,
-          profilePicture: newUser.profilePicture,
-        },
+      token: token,
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        profilePicture: newUser.profilePicture,
       },
     });
   } catch (error) {
@@ -71,6 +71,8 @@ export const signup = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+// =================== Login API ===================
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -80,12 +82,12 @@ export const login = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
-    // check if user with email exists
+    // check if user with provided email exists
     const user = await db.select().from(userTable).where(eq(userTable.email, email)).limit(1);
 
     // If user not found
-    if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+    if (user.length === 0) {
+      return res.status(400).json({ message: "user not exist!" });
     }
 
     // Compare password
@@ -93,7 +95,7 @@ export const login = async (req: Request, res: Response) => {
 
     // If password does not match
     if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid email or password!" });
     }
 
     // Ensure user ID exists
@@ -107,14 +109,12 @@ export const login = async (req: Request, res: Response) => {
     // Respond with user data excluding password
     return res.status(200).json({
       message: "Login successful",
-      data: {
-        token: token,
-        user: {
-          id: user[0].id,
-          username: user[0].username,
-          email: user[0].email,
-          profilePicture: user[0].profilePicture,
-        },
+      token: token,
+      user: {
+        id: user[0].id,
+        username: user[0].username,
+        email: user[0].email,
+        profilePicture: user[0].profilePicture,
       },
     });
   } catch (error) {
@@ -122,6 +122,8 @@ export const login = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+// =================== Logout API ===================
 
 export const logout = (_req: Request, res: Response) => {
   try {
