@@ -6,11 +6,11 @@ import { userTable } from "../db/user-schema.js";
 import { generateToken } from "../lib/utils.js";
 
 export const signup = async (req: Request, res: Response) => {
-  const { fullName, email, password } = req.body;
+  const { username, email, password } = req.body;
 
   try {
     // validate input fields
-    if (!fullName || !email || !password) {
+    if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -37,7 +37,7 @@ export const signup = async (req: Request, res: Response) => {
     const [newUser] = await db
       .insert(userTable)
       .values({
-        fullName: fullName,
+        username: username,
         email: email,
         password: hashedPassword,
         profilePicture: "",
@@ -51,16 +51,19 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // Generate JWT Token
-    generateToken(newUser.id, res);
+    const token = generateToken(newUser.id, res);
 
     // Respond with user data excluding password
     return res.status(201).json({
       message: "User created successfully",
-      user: {
-        id: newUser.id,
-        fullName: newUser.fullName,
-        email: newUser.email,
-        profilePicture: newUser.profilePicture,
+      data: {
+        token: token,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          profilePicture: newUser.profilePicture,
+        },
       },
     });
   } catch (error) {
@@ -99,16 +102,19 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Generate JWT Token
-    generateToken(user[0]?.id, res);
+    const token = generateToken(user[0]?.id, res);
 
     // Respond with user data excluding password
     return res.status(200).json({
       message: "Login successful",
-      user: {
-        id: user[0].id,
-        fullName: user[0].fullName,
-        email: user[0].email,
-        profilePicture: user[0].profilePicture,
+      data: {
+        token: token,
+        user: {
+          id: user[0].id,
+          username: user[0].username,
+          email: user[0].email,
+          profilePicture: user[0].profilePicture,
+        },
       },
     });
   } catch (error) {

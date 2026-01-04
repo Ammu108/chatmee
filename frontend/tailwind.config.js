@@ -20,8 +20,8 @@ export default {
   			},
   			dark: {
   				'100': '#0f1923',
-				'70': '#1C1F27',
-				'40': '#282E39',
+				'70': '#14212E',
+				'40': '#1D3145',
 				'20': '#9ca3af'
   			},
   			background: 'hsl(var(--background))',

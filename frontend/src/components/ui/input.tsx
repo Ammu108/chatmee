@@ -9,7 +9,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         className={cn(
           // The border color is controlled by the "border-input" class.
           // On focus, "focus-visible:ring-ring" adds a ring with the "ring" color.
-          "flex h-9 w-full rounded-md border border-gray-600 bg-transparent px-3 py-1 text-base text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-100 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "flex h-9 w-full rounded-md border border-gray-600 bg-transparent px-3 py-1 text-foreground shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground placeholder:text-xs md:placeholder:text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-100 disabled:cursor-not-allowed disabled:opacity-50 md:text-base text-sm",
           className,
         )}
         ref={ref}

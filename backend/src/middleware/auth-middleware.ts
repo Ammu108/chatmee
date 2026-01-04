@@ -23,7 +23,7 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
     const user = await db
       .select({
         id: userTable.id,
-        fullName: userTable.fullName,
+        username: userTable.username,
         email: userTable.email,
         profilePicture: userTable.profilePicture,
       })
