@@ -42,7 +42,6 @@ export const signup = async (req: Request, res: Response) => {
         username: username,
         email: email,
         password: hashedPassword,
-        profilePicture: "",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       })
@@ -53,17 +52,15 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // Generate JWT Token
-    const token = generateToken(newUser.id, res);
+    generateToken(newUser.id, res);
 
     // Respond with user data excluding password
     return res.status(201).json({
       message: "User created successfully",
-      token: token,
       user: {
         id: newUser.id,
         username: newUser.username,
         email: newUser.email,
-        profilePicture: newUser.profilePicture,
       },
     });
   } catch (error) {
@@ -104,17 +101,15 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Generate JWT Token
-    const token = generateToken(user[0]?.id, res);
+    generateToken(user[0]?.id, res);
 
     // Respond with user data excluding password
     return res.status(200).json({
       message: "Login successful",
-      token: token,
       user: {
         id: user[0].id,
         username: user[0].username,
         email: user[0].email,
-        profilePicture: user[0].profilePicture,
       },
     });
   } catch (error) {
@@ -127,7 +122,11 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = (_req: Request, res: Response) => {
   try {
-    res.cookie("token", "", { maxAge: 0, httpOnly: true });
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+    });
     return res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.log("Error in logout the account", error);

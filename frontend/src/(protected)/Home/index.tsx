@@ -1,13 +1,10 @@
-import { useNavigate } from "react-router-dom";
 import { useLogout } from "../../hooks/auth-hook";
 
 const Index = () => {
   const { logout } = useLogout();
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
   };
 
   return (

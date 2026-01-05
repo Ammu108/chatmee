@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Spinner } from "../../components/ui/spinner";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { useLogin, useSignUp } from "../../hooks/auth-hook";
+import { useAuthFormStore } from "../../store/auth-store";
 
 const AuthForm = () => {
-  const [activeTab, setActiveTab] = useState("login");
+  const activeTab = useAuthFormStore((state) => state.AuthFormActiveTab);
+  const setActiveTab = useAuthFormStore((state) => state.setAuthFormActiveTab);
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [data, setData] = useState({
     username: "",
     email: "",
@@ -24,7 +24,19 @@ const AuthForm = () => {
   const { login, loading: loginLoading, error: loginError } = useLogin();
   const { signup, loading: signupLoading, error: signError } = useSignUp();
 
-  const navigate = useNavigate();
+  // Sync URL with activeTab on mount
+  useEffect(() => {
+    const path = location.pathname.slice(1); // Remove leading slash
+    if (path === "login" || path === "signup") {
+      setActiveTab(path);
+    }
+  }, [location.pathname, setActiveTab]);
+
+  // Handle tab change and update URL
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    navigate(`/${tab}`);
+  };
 
   const onchangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,7 +57,7 @@ const AuthForm = () => {
         });
       }
 
-      // navigate only success
+      // navigate to home only on success
       navigate("/");
     } catch (error) {
       console.log("Authentication failed!", error);
@@ -57,7 +69,7 @@ const AuthForm = () => {
       <Tabs
         defaultValue="login"
         value={activeTab}
-        onValueChange={setActiveTab}
+        onValueChange={handleTabChange}
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-2 mb-8 bg-dark-70">
@@ -77,9 +89,7 @@ const AuthForm = () => {
 
         {activeTab === "login" ? (
           <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Welcome Back
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Welcome Back</h1>
             <p className="text-dark-20 text-xs md:text-sm">
               Log in to your account to continue.
             </p>
@@ -98,10 +108,7 @@ const AuthForm = () => {
         <form onSubmit={handleForm}>
           <TabsContent value="login" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label
-                htmlFor="login-email"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="login-email" className="text-sm font-medium text-white">
                 Email
               </Label>
               <Input
@@ -116,10 +123,7 @@ const AuthForm = () => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label
-                  htmlFor="login-password"
-                  className="text-sm font-medium text-white"
-                >
+                <Label htmlFor="login-password" className="text-sm font-medium text-white">
                   Password
                 </Label>
                 {/* <button
@@ -146,22 +150,14 @@ const AuthForm = () => {
                 </Alert>
               )}
             </div>
-            <Button
-              type="submit"
-              variant="secondary"
-              className="w-full h-11 mt-6"
-              size="lg"
-            >
+            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
               {loginLoading ? <Spinner /> : "Log In"}
             </Button>
           </TabsContent>
 
           <TabsContent value="signup" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label
-                htmlFor="signup-username"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="signup-username" className="text-sm font-medium text-white">
                 Username
               </Label>
               <Input
@@ -175,10 +171,7 @@ const AuthForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label
-                htmlFor="signup-email"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="signup-email" className="text-sm font-medium text-white">
                 Email
               </Label>
               <Input
@@ -192,10 +185,7 @@ const AuthForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label
-                htmlFor="signup-password"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="signup-password" className="text-sm font-medium text-white">
                 Password
               </Label>
               <Input
@@ -229,12 +219,7 @@ const AuthForm = () => {
                 </Alert>
               )}
             </div>
-            <Button
-              type="submit"
-              variant="secondary"
-              className="w-full h-11 mt-6"
-              size="lg"
-            >
+            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
               {signupLoading ? <Spinner /> : "Create Account"}
             </Button>
           </TabsContent>
@@ -243,10 +228,7 @@ const AuthForm = () => {
 
       <div className="mt-6 text-center text-xs md:text-sm text-dark-20">
         By continuing, you agree to our and{" "}
-        <Link
-          to="/privacy-policy"
-          className="text-primary-100 underline hover:cursor-pointer"
-        >
+        <Link to="/privacy-policy" className="text-primary-100 underline hover:cursor-pointer">
           Privacy Policy
         </Link>
       </div>

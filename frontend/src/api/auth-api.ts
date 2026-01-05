@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 // =================== SignUp API ===================
@@ -9,21 +11,18 @@ interface SignUpFormData {
 }
 
 export const signupApi = async (formData: SignUpFormData) => {
-  const res = await fetch(`${BACKEND_URL}/api/auth/signup`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
+  try {
+    const res = await axios.post(`${BACKEND_URL}/api/auth/signup`, formData, {
+      withCredentials: true,
+    });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.message || "signup failed");
+    return res.data;
+  } catch (error) {
+    const errorMessage = axios.isAxiosError(error)
+      ? error.response?.data?.message
+      : "sign up failed!";
+    throw new Error(errorMessage);
   }
-
-  return data;
 };
 
 // =================== Login API ===================
@@ -34,36 +33,35 @@ interface LoginFormData {
 }
 
 export const loginApi = async (formData: LoginFormData) => {
-  const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
+  try {
+    const res = await axios.post(`${BACKEND_URL}/api/auth/login`, formData, {
+      withCredentials: true,
+    });
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.message || "login failed");
+    return res.data;
+  } catch (error) {
+    const errorMessage = axios.isAxiosError(error)
+      ? error.response?.data?.message
+      : "login failed!";
+    throw new Error(errorMessage);
   }
-
-  return data;
 };
 
 // =================== Logout API ===================
 
 export const logoutApi = async () => {
-  const res = await fetch(`${BACKEND_URL}/api/auth/logout`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error("logout failed");
+  try {
+    await axios.post(
+      `${BACKEND_URL}/api/auth/logout`,
+      {},
+      {
+        withCredentials: true,
+      },
+    );
+  } catch (error) {
+    const errorMessage = axios.isAxiosError(error)
+      ? error.response?.data?.message
+      : "login failed!";
+    throw new Error(errorMessage);
   }
-
-  return res.json();
 };

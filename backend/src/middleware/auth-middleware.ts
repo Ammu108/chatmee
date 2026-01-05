@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { db } from "../db/index.js";
 import { userTable } from "../db/user-schema.js";
 
-export const protectRoute = async (req: Request, res: Response, next: NextFunction) => {
+export const protectedRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies.token;
 
@@ -12,11 +12,12 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
       return res.status(401).json({ message: "Not authorized, token missing" });
     }
 
-    // verfy token
+    // verify token with proper typing
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
 
-    if (!decoded) {
-      return res.status(401).json({ message: "Not authorized, token invalid" });
+    // Validate that userId exists
+    if (!decoded.userId) {
+      return res.status(401).json({ message: "Not authorized, invalid token" });
     }
 
     // find user id from token
@@ -25,13 +26,12 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
         id: userTable.id,
         username: userTable.username,
         email: userTable.email,
-        profilePicture: userTable.profilePicture,
       })
       .from(userTable)
       .where(eq(userTable.id, decoded.userId))
       .limit(1);
 
-    if (!user) {
+    if (!user.length) {
       return res.status(401).json({ message: "Not authorized, user not found" });
     }
 

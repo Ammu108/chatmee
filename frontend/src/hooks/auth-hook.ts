@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { loginApi, logoutApi, signupApi } from "../api/auth-api";
+import { useAuthState } from "../store/auth-store";
 
 // =================== SignUp Hook ===================
 
@@ -13,6 +14,7 @@ interface SignUpFormData {
 export const useSignUp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const setUser = useAuthState((state) => state.setUser);
 
   const signup = async (formData: SignUpFormData) => {
     setLoading(true);
@@ -27,15 +29,8 @@ export const useSignUp = () => {
         throw new Error("Sign up failed");
       }
 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        toast.success("Account Created Successfully!");
-      } else {
-        console.log("token not found.");
-        throw new Error("Token not found in response");
-      }
-
+      setUser(data.user);
+      toast.success("Account Created Successfully!");
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "sign up failed!";
@@ -60,6 +55,7 @@ interface LoginFormData {
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const setUser = useAuthState((state) => state.setUser);
 
   const login = async (formData: LoginFormData) => {
     setLoading(true);
@@ -74,15 +70,8 @@ export const useLogin = () => {
         throw new Error("Login failed!");
       }
 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        toast.success("Login Successfully! Welcome back.");
-      } else {
-        console.log("token not found.");
-        throw new Error("Token not found in response");
-      }
-
+      setUser(data.user);
+      toast.success("Login Successfully! Welcome back.");
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "login failed!";
@@ -102,19 +91,16 @@ export const useLogin = () => {
 export const useLogout = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const setUser = useAuthState((state) => state.setUser);
 
   const logout = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await logoutApi();
+      await logoutApi();
 
-      console.log("Backend response :", data);
-      console.log("backend message :", data.message);
-
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      setUser(null);
       toast.success("logout successfully!");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "logout failed!";
