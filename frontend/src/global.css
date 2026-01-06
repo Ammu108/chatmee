@@ -13,12 +13,8 @@
 }
 
 @theme {
-
   --primary-color: #359EFF;
-
 }
-
-
 
 @layer base {
   :root {
@@ -84,5 +80,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

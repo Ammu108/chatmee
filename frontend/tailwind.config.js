@@ -24,6 +24,9 @@ export default {
 				'40': '#1D3145',
 				'20': '#9ca3af'
   			},
+			yellow: {
+				'100': "#FFC300",
+			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
