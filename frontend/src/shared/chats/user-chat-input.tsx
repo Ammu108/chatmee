@@ -10,7 +10,6 @@ const UserChatInput = () => {
         <Button variant="secondary" size="icon" className="opacity-50">
           <IconSend2 className="text-white" />
         </Button>
-        {/* <div className="bg-primary-100 px-4 py-2 rounded-md"></div> */}
       </div>
     </div>
   );

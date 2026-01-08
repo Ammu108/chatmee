@@ -1,4 +1,4 @@
-import { IconPencilPlus, IconUserCircle } from "@tabler/icons-react";
+import { IconPencilPlus, IconSearch, IconUserCircle } from "@tabler/icons-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useLogout } from "../../hooks/auth-hook";
@@ -39,10 +39,17 @@ const ChatListNavbar = () => {
           )}
         </div>
       </div>
-      <div>
+      <div className="relative w-full">
+        {/* Icon */}
+        <IconSearch
+          size={18}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+        />
+
+        {/* Input */}
         <Input
           placeholder="Search contacts or messages"
-          className="bg-dark-40 py-5 border-none text-gray-200"
+          className="bg-dark-40 py-5 pl-11 border-none text-gray-200 placeholder:text-gray-400 focus-visible:ring-0"
         />
       </div>
     </div>

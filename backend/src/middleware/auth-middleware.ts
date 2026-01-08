@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db/index.js";
-import { userTable } from "../db/user-schema.js";
+import { userTable } from "../db/schema.js";
 
 export const protectedRoute = async (req: Request, res: Response, next: NextFunction) => {
   try {

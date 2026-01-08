@@ -1,23 +1,21 @@
-import ChatListNavbar from "../../shared/chats/chat-list-navbar";
-import ChatListSideBar from "../../shared/chats/chat-list-sideBar";
+import { useState } from "react";
+import ResponsiveChatSidebar from "../../shared/chats/responsive-chat-sidebar";
 import UserChatInput from "../../shared/chats/user-chat-input";
 import UserChatNavbar from "../../shared/chats/user-chat-navbar";
 import UserChatSpace from "../../shared/chats/user-chat-space";
 
 const Index = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="flex flex-row">
-      <div className="w-1/2 flex flex-col h-screen">
-        <div className="z-50">
-          <ChatListNavbar />
-        </div>
-        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <ChatListSideBar />
-        </div>
-      </div>
-      <div className="w-full flex flex-col h-screen">
+    <div className="flex flex-row h-screen overflow-hidden">
+      {/* Responsive Chat Sidebar */}
+      <ResponsiveChatSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col h-screen">
         <div className="z-50 sticky top-0">
-          <UserChatNavbar />
+          <UserChatNavbar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
         </div>
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <UserChatSpace />

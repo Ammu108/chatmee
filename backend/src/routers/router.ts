@@ -1,6 +1,7 @@
 import express from "express";
 import { protectedRoute } from "../middleware/auth-middleware.js";
 import { login, logout, signup } from "./auth.js";
+import { findUserByEmail } from "./user.js";
 
 const router = express.Router();
 
@@ -14,5 +15,7 @@ router.get("/me", protectedRoute, (_req, res) => {
     user: res.locals.user,
   });
 });
+
+router.get("/search", protectedRoute, findUserByEmail);
 
 export default router;

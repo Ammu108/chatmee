@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
-import { userTable } from "../db/user-schema.js";
+import { userTable } from "../db/schema.js";
 import { generateToken } from "../lib/utils.js";
 
 // =================== Signup API ===================
