@@ -1,4 +1,5 @@
 import { IconUserCircle } from "@tabler/icons-react";
+import { useSearchParams } from "react-router-dom";
 import type { UserData } from "../../hooks/user-hook";
 
 interface ChatListItemsProps {
@@ -6,9 +7,32 @@ interface ChatListItemsProps {
 }
 
 const ChatListItems = ({ data }: ChatListItemsProps) => {
+  const [, setSearchParams] = useSearchParams();
+
+  const updateParams = () => {
+    const userId = data?.searchedUser?.id;
+    if (!userId) return;
+
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        params.set("chat", userId);
+        return params;
+      },
+      {
+        replace: true,
+        preventScrollReset: true,
+      }
+    );
+  };
+
   return (
     <div className="bg-dark-100 p-4 space-y-3 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-      <div className="flex flex-row items-center justify-between p-3 rounded-lg hover:bg-dark-40 cursor-pointer transition-colors duration-200">
+      <button
+        type="button"
+        onClick={updateParams}
+        className="flex w-full flex-row items-center justify-between p-3 rounded-lg hover:bg-dark-40 cursor-pointer transition-colors duration-200"
+      >
         <div className="flex flex-row gap-3 items-center flex-1 min-w-0">
           <div>
             <IconUserCircle className="text-gray-400 flex-shrink-0" size="46" />
@@ -27,7 +51,7 @@ const ChatListItems = ({ data }: ChatListItemsProps) => {
               {item.time}
             </p> */}
         </div>
-      </div>
+      </button>
     </div>
   );
 };

@@ -1,24 +1,39 @@
-import { IconPencilPlus, IconSearch, IconUserCircle, IconX } from "@tabler/icons-react";
+import {
+  IconPencilPlus,
+  IconSearch,
+  IconUserCircle,
+  IconX,
+} from "@tabler/icons-react";
 import { useState } from "react";
+import ModalOverlayItems from "../../components/modal-list-items";
 import { Button } from "../../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
 import { Sheet, SheetContent, SheetHeader } from "../../components/ui/sheet";
 import { Spinner } from "../../components/ui/spinner";
 import { useLogout } from "../../hooks/auth-hook";
 import { useFindUserByEmail } from "../../hooks/user-hook";
 import { useAuthState } from "../../store/auth-store";
-import ChatListSideBar from "./chat-list-sideBar";
 
 interface ResponsiveChatSidebarProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }
 
-const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps) => {
+const ResponsiveChatSidebar = ({
+  isOpen,
+  setIsOpen,
+}: ResponsiveChatSidebarProps) => {
   const { logout } = useLogout();
   const user = useAuthState((s) => s.user);
   const [searchQuery, setSearchQuery] = useState("");
   const { findUserByEmail, data, loading, error } = useFindUserByEmail();
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -33,7 +48,7 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
     try {
       await findUserByEmail(searchQuery);
     } catch (error) {
-      console.log("Authentication failed!", error);
+      console.log("failed to get user!", error);
     }
   };
 
@@ -66,7 +81,12 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
       );
     }
 
-    return <ChatListSideBar data={data} />;
+    return (
+      <ModalOverlayItems
+        data={data}
+        onSelectUser={() => setOpenDialog(false)}
+      />
+    );
   };
 
   const clearInputField = () => {
@@ -90,7 +110,11 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
               {user?.id && (
                 <div className="flex flex-row gap-4 items-center justify-center">
                   <div>
-                    <Button variant={"secondary"} onClick={handleLogout} size="sm">
+                    <Button
+                      variant={"secondary"}
+                      onClick={handleLogout}
+                      size="sm"
+                    >
                       Logout
                     </Button>
                   </div>
@@ -111,19 +135,10 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
             />
             <Input
               placeholder="Search contacts via email"
-              name="email"
-              type="email"
-              value={searchQuery}
-              onChange={onchangeHandler}
-              className="bg-dark-40 py-5 pl-11 border-none text-gray-200 placeholder:text-gray-400"
+              readOnly={true}
+              onClick={() => setOpenDialog(true)}
+              className="bg-dark-40 py-5 pl-11 border-none text-gray-200 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer"
             />
-            {searchQuery.length > 0 && (
-              <IconX
-                size={18}
-                onClick={clearInputField}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 cursor-pointer"
-              />
-            )}
           </form>
         </div>
 
@@ -152,7 +167,11 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
                   {user?.id && (
                     <div className="flex flex-row gap-4 items-center justify-center">
                       <div>
-                        <Button variant={"secondary"} onClick={handleLogout} size="sm">
+                        <Button
+                          variant={"secondary"}
+                          onClick={handleLogout}
+                          size="sm"
+                        >
                           Logout
                         </Button>
                       </div>
@@ -196,6 +215,37 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
           <IconUserCircle className="text-gray-400" size="46" />
         </div>
       </div>
+
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-dark-100 border-none"
+          aria-describedby={undefined}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-slate-300">
+              Find Users
+            </DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={handleSearchQuery}
+            className="flex-1 overflow-hidden flex flex-col"
+          >
+            <div className="relative mb-6">
+              <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Input
+                placeholder="Search contacts via email"
+                name="email"
+                type="email"
+                value={searchQuery}
+                onChange={onchangeHandler}
+                className="bg-dark-40 py-5 pl-11 border-none text-gray-200 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer"
+              />
+            </div>
+            {renderChatList()}
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
