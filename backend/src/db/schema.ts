@@ -1,4 +1,4 @@
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 // =================== User Table Schema ===================
 
@@ -21,6 +21,6 @@ export const messageTable = pgTable("message", {
   receiver_id: uuid("receiver_id")
     .references(() => userTable.id)
     .notNull(),
-  content: varchar("text").notNull(),
+  content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
