@@ -19,7 +19,6 @@ export const checkusername = async (req: Request, res: Response) => {
     }
 
     // regex validation
-    // const normalizedUsername = username.trim().toLowerCase();
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
     // validate username input field
     if (!usernameRegex.test(username)) {
@@ -64,7 +63,6 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // regex validation
-    // const normalizedUsername = username.trim().toLowerCase();
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
     if (!usernameRegex.test(username)) {
       return res.status(400).json({ message: "Invalid username format." });
@@ -89,11 +87,15 @@ export const signup = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Store both original and normalized username
+    const normalizedUsername = username.toLowerCase().trim();
+
     // Create new user
     const [newUser] = await db
       .insert(userTable)
       .values({
-        username: username,
+        username: username, // Original format (display)
+        usernameNormalized: normalizedUsername, // Lowercase (search)
         email: email,
         password: hashedPassword,
         createdAt: new Date().toISOString(),

@@ -1,18 +1,8 @@
-import {
-  IconPencilPlus,
-  IconSearch,
-  IconUserCircle,
-  IconX,
-} from "@tabler/icons-react";
+import { IconPencilPlus, IconSearch, IconUserCircle, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import ModalOverlayItems from "../../components/modal-list-items";
 import { Button } from "../../components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
 import { Sheet, SheetContent, SheetHeader } from "../../components/ui/sheet";
 import { Spinner } from "../../components/ui/spinner";
@@ -25,10 +15,7 @@ interface ResponsiveChatSidebarProps {
   setIsOpen: (open: boolean) => void;
 }
 
-const ResponsiveChatSidebar = ({
-  isOpen,
-  setIsOpen,
-}: ResponsiveChatSidebarProps) => {
+const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps) => {
   const { logout } = useLogout();
   const user = useAuthState((s) => s.user);
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,12 +68,7 @@ const ResponsiveChatSidebar = ({
       );
     }
 
-    return (
-      <ModalOverlayItems
-        data={data}
-        onSelectUser={() => setOpenDialog(false)}
-      />
-    );
+    return <ModalOverlayItems data={data} onSelectUser={() => setOpenDialog(false)} />;
   };
 
   const clearInputField = () => {
@@ -110,11 +92,7 @@ const ResponsiveChatSidebar = ({
               {user?.id && (
                 <div className="flex flex-row gap-4 items-center justify-center">
                   <div>
-                    <Button
-                      variant={"secondary"}
-                      onClick={handleLogout}
-                      size="sm"
-                    >
+                    <Button variant={"secondary"} onClick={handleLogout} size="sm">
                       Logout
                     </Button>
                   </div>
@@ -167,11 +145,7 @@ const ResponsiveChatSidebar = ({
                   {user?.id && (
                     <div className="flex flex-row gap-4 items-center justify-center">
                       <div>
-                        <Button
-                          variant={"secondary"}
-                          onClick={handleLogout}
-                          size="sm"
-                        >
+                        <Button variant={"secondary"} onClick={handleLogout} size="sm">
                           Logout
                         </Button>
                       </div>
@@ -222,15 +196,10 @@ const ResponsiveChatSidebar = ({
           aria-describedby={undefined}
         >
           <DialogHeader>
-            <DialogTitle className="text-2xl text-slate-300">
-              Find Users
-            </DialogTitle>
+            <DialogTitle className="text-2xl text-slate-300">Find Users</DialogTitle>
           </DialogHeader>
 
-          <form
-            onSubmit={handleSearchQuery}
-            className="flex-1 overflow-hidden flex flex-col"
-          >
+          <form onSubmit={handleSearchQuery} className="flex-1 overflow-hidden flex flex-col">
             <div className="relative mb-6">
               <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <Input

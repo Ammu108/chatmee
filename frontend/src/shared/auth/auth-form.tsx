@@ -5,12 +5,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Spinner } from "../../components/ui/spinner";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { useLogin, useSignUp } from "../../hooks/auth-hook";
 import { useCheckUsername } from "../../hooks/user-hook";
 import { useAuthFormStore } from "../../store/auth-store";
@@ -156,9 +151,7 @@ const AuthForm = () => {
 
         {activeTab === "login" ? (
           <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Welcome Back
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Welcome Back</h1>
             <p className="text-dark-20 text-xs md:text-sm">
               Log in to your account to continue.
             </p>
@@ -177,10 +170,7 @@ const AuthForm = () => {
         <form onSubmit={handleForm}>
           <TabsContent value="login" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label
-                htmlFor="login-email"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="login-email" className="text-sm font-medium text-white">
                 Email
               </Label>
               <Input
@@ -196,10 +186,7 @@ const AuthForm = () => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label
-                  htmlFor="login-password"
-                  className="text-sm font-medium text-white"
-                >
+                <Label htmlFor="login-password" className="text-sm font-medium text-white">
                   Password
                 </Label>
               </div>
@@ -221,22 +208,14 @@ const AuthForm = () => {
                 </Alert>
               )}
             </div>
-            <Button
-              type="submit"
-              variant="secondary"
-              className="w-full h-11 mt-6"
-              size="lg"
-            >
+            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
               {loginLoading ? <Spinner /> : "Log In"}
             </Button>
           </TabsContent>
 
           <TabsContent value="signup" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label
-                htmlFor="signup-username"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="signup-username" className="text-sm font-medium text-white">
                 Username
               </Label>
               <Input
@@ -254,15 +233,9 @@ const AuthForm = () => {
             <div className="space-y-2">
               {usernameValidationMsg ? (
                 <Alert
-                  variant={
-                    usernameValidationMsg.type === "error"
-                      ? "destructive"
-                      : "default"
-                  }
+                  variant={usernameValidationMsg.type === "error" ? "destructive" : "default"}
                 >
-                  <AlertDescription>
-                    {usernameValidationMsg.message}
-                  </AlertDescription>
+                  <AlertDescription>{usernameValidationMsg.message}</AlertDescription>
                 </Alert>
               ) : isValidUsernameFormat ? (
                 usernameLoading ? (
@@ -287,10 +260,7 @@ const AuthForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="signup-email"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="signup-email" className="text-sm font-medium text-white">
                 Email
               </Label>
               <Input
@@ -305,10 +275,7 @@ const AuthForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label
-                htmlFor="signup-password"
-                className="text-sm font-medium text-white"
-              >
+              <Label htmlFor="signup-password" className="text-sm font-medium text-white">
                 Password
               </Label>
               <Input
@@ -343,12 +310,7 @@ const AuthForm = () => {
                 </Alert>
               )}
             </div>
-            <Button
-              type="submit"
-              variant="secondary"
-              className="w-full h-11 mt-6"
-              size="lg"
-            >
+            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
               {signupLoading ? <Spinner /> : "Create Account"}
             </Button>
           </TabsContent>
@@ -357,10 +319,7 @@ const AuthForm = () => {
 
       <div className="mt-6 text-center text-xs md:text-sm text-dark-20">
         By continuing, you agree to our and{" "}
-        <Link
-          to="/privacy-policy"
-          className="text-primary-100 underline hover:cursor-pointer"
-        >
+        <Link to="/privacy-policy" className="text-primary-100 underline hover:cursor-pointer">
           Privacy Policy
         </Link>
       </div>

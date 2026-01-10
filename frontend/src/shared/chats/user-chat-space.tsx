@@ -1,9 +1,4 @@
-import {
-  IconMenu2,
-  IconSettingsFilled,
-  IconUserCircle,
-  IconX,
-} from "@tabler/icons-react";
+import { IconMenu2, IconSettingsFilled, IconUserCircle, IconX } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Spinner } from "../../components/ui/spinner";
@@ -44,9 +39,7 @@ const UserChatSpace = ({ isOpen, setIsOpen }: UserChatNavbarProps) => {
   if (!selectedChat) {
     return (
       <div className="bg-black h-screen flex items-center justify-center">
-        <p className="text-gray-500 text-xl font-medium">
-          Select a chat to start message.
-        </p>
+        <p className="text-gray-500 text-xl font-medium">Select a chat to start message.</p>
       </div>
     );
   }
@@ -95,11 +88,7 @@ const UserChatSpace = ({ isOpen, setIsOpen }: UserChatNavbarProps) => {
         <div className="flex-row flex items-center gap-2">
           <IconSettingsFilled className="text-gray-400" size="28" />
           {/* Mobile Menu Toggle Button */}
-          <button
-            type="button"
-            onClick={() => setIsOpen(!isOpen)}
-            className="flex md:hidden"
-          >
+          <button type="button" onClick={() => setIsOpen(!isOpen)} className="flex md:hidden">
             {isOpen ? (
               <IconX className="text-gray-400" size={28} />
             ) : (

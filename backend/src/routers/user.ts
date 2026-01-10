@@ -10,18 +10,21 @@ export const findUserByUsername = async (req: Request, res: Response) => {
 
   // Validate email parameter
   if (!username || typeof username !== "string") {
-    return res.status(400).json({ message: "Invalid email parameter" });
+    return res.status(400).json({ message: "Invalid username parameter" });
   }
 
   try {
-    // check if user with provided email exists
+    // Normalize search input to lowercase
+    const normalizedSearch = username.toLowerCase().trim();
+    // Check if user with provided username exists
     const userByUsername = await db
       .select()
       .from(userTable)
-      .where(eq(userTable.username, username));
+      .where(eq(userTable.usernameNormalized, normalizedSearch))
+      .limit(1);
 
     if (userByUsername.length === 0) {
-      return res.status(400).json({ message: "user not found!" });
+      return res.status(404).json({ message: "user not found!" });
     }
 
     // Ensure user ID exists
@@ -39,7 +42,7 @@ export const findUserByUsername = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.log("Error in finding user by email", error);
+    console.log("Error in finding user by username", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

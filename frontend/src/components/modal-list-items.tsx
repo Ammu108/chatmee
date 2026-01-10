@@ -23,7 +23,7 @@ const ModalOverlayItems = ({ data, onSelectUser }: ChatListItemsProps) => {
       {
         replace: true,
         preventScrollReset: true,
-      }
+      },
     );
     // Call the callback to close the modal
     onSelectUser?.();

@@ -9,10 +9,7 @@ const Index = () => {
   return (
     <div className="flex flex-row h-screen overflow-hidden">
       {/* Responsive Chat Sidebar */}
-      <ResponsiveChatSidebar
-        isOpen={isSidebarOpen}
-        setIsOpen={setIsSidebarOpen}
-      />
+      <ResponsiveChatSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col h-screen">
