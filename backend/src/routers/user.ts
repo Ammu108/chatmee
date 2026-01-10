@@ -5,28 +5,27 @@ import { messageTable, userTable } from "../db/schema.js";
 
 // =================== Find Users API ( via their unique email ) ===================
 
-export const findUserByEmail = async (req: Request, res: Response) => {
-  const { email } = req.query;
+export const findUserByUsername = async (req: Request, res: Response) => {
+  const { username } = req.query;
 
   // Validate email parameter
-  if (!email || typeof email !== "string") {
+  if (!username || typeof username !== "string") {
     return res.status(400).json({ message: "Invalid email parameter" });
   }
 
   try {
     // check if user with provided email exists
-    const userByEmail = await db
+    const userByUsername = await db
       .select()
       .from(userTable)
-      .where(eq(userTable.email, email))
-      .limit(1);
+      .where(eq(userTable.username, username));
 
-    if (userByEmail.length === 0) {
+    if (userByUsername.length === 0) {
       return res.status(400).json({ message: "user not found!" });
     }
 
     // Ensure user ID exists
-    if (!userByEmail[0] || !userByEmail[0].id) {
+    if (!userByUsername[0] || !userByUsername[0].id) {
       return res.status(500).json({ message: "User data is invalid!" });
     }
 
@@ -34,9 +33,9 @@ export const findUserByEmail = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "user found.",
       searchedUser: {
-        id: userByEmail[0].id,
-        username: userByEmail[0].username,
-        email: userByEmail[0].email,
+        id: userByUsername[0].id,
+        username: userByUsername[0].username,
+        email: userByUsername[0].email,
       },
     });
   } catch (error) {

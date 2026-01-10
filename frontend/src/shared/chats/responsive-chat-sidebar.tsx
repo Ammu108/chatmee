@@ -17,7 +17,7 @@ import { Input } from "../../components/ui/input";
 import { Sheet, SheetContent, SheetHeader } from "../../components/ui/sheet";
 import { Spinner } from "../../components/ui/spinner";
 import { useLogout } from "../../hooks/auth-hook";
-import { useFindUserByEmail } from "../../hooks/user-hook";
+import { useFindUserByUsername } from "../../hooks/user-hook";
 import { useAuthState } from "../../store/auth-store";
 
 interface ResponsiveChatSidebarProps {
@@ -32,7 +32,7 @@ const ResponsiveChatSidebar = ({
   const { logout } = useLogout();
   const user = useAuthState((s) => s.user);
   const [searchQuery, setSearchQuery] = useState("");
-  const { findUserByEmail, data, loading, error } = useFindUserByEmail();
+  const { findUserByUsername, data, loading, error } = useFindUserByUsername();
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleLogout = async () => {
@@ -46,7 +46,7 @@ const ResponsiveChatSidebar = ({
   const handleSearchQuery = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await findUserByEmail(searchQuery);
+      await findUserByUsername(searchQuery);
     } catch (error) {
       console.log("failed to get user!", error);
     }
@@ -134,7 +134,7 @@ const ResponsiveChatSidebar = ({
               className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
             />
             <Input
-              placeholder="Search contacts via email"
+              placeholder="Search users..."
               readOnly={true}
               onClick={() => setOpenDialog(true)}
               className="bg-dark-40 py-5 pl-11 border-none text-gray-200 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer"
@@ -234,12 +234,12 @@ const ResponsiveChatSidebar = ({
             <div className="relative mb-6">
               <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <Input
-                placeholder="Search contacts via email"
-                name="email"
-                type="email"
+                placeholder="Search users..."
+                name="text"
+                type="text"
                 value={searchQuery}
                 onChange={onchangeHandler}
-                className="bg-dark-40 py-5 pl-11 border-none text-gray-200 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer"
+                className="bg-dark-40 py-5 pl-11 border-none text-gray-200 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
             </div>
             {renderChatList()}

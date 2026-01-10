@@ -1,9 +1,56 @@
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
 import { userTable } from "../db/schema.js";
 import { generateToken } from "../lib/utils.js";
+
+// =================== Check Username API ===================
+
+export const checkusername = async (req: Request, res: Response) => {
+  const { username } = req.query;
+
+  try {
+    // validate username exists and is a string
+    if (!username || typeof username !== "string") {
+      return res
+        .status(400)
+        .json({ valid: false, available: false, message: "Invalid username format." });
+    }
+
+    // regex validation
+    // const normalizedUsername = username.trim().toLowerCase();
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
+    // validate username input field
+    if (!usernameRegex.test(username)) {
+      return res
+        .status(400)
+        .json({ valid: false, available: false, message: "Invalid username format." });
+    }
+
+    // check that username does not already exist
+    const existingUsername = await db
+      .select()
+      .from(userTable)
+      .where(eq(userTable.username, username))
+      .limit(1);
+
+    if (existingUsername.length > 0) {
+      return res.status(409).json({
+        available: false,
+        message: "Username already taken!",
+      });
+    }
+
+    return res.status(200).json({
+      available: true,
+      message: "username available.",
+    });
+  } catch (error) {
+    console.log("Error in checking username", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 // =================== Signup API ===================
 
@@ -16,8 +63,15 @@ export const signup = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // regex validation
+    // const normalizedUsername = username.trim().toLowerCase();
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({ message: "Invalid username format." });
+    }
+
     // check the passowrd length
-    if (password.length < 6) {
+    if (password.length < 5) {
       return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
@@ -25,11 +79,11 @@ export const signup = async (req: Request, res: Response) => {
     const existingUser = await db
       .select()
       .from(userTable)
-      .where(eq(userTable.email, email))
+      .where(or(eq(userTable.email, email), eq(userTable.username, username)))
       .limit(1);
 
     if (existingUser.length > 0) {
-      return res.status(400).json({ message: "User with this email already exists" });
+      return res.status(409).json({ message: "Email or username already exists!" });
     }
 
     const salt = await bcrypt.genSalt(10);

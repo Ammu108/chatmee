@@ -5,8 +5,14 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Spinner } from "../../components/ui/spinner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import { useLogin, useSignUp } from "../../hooks/auth-hook";
+import { useCheckUsername } from "../../hooks/user-hook";
 import { useAuthFormStore } from "../../store/auth-store";
 
 const AuthForm = () => {
@@ -23,6 +29,60 @@ const AuthForm = () => {
 
   const { login, loading: loginLoading, error: loginError } = useLogin();
   const { signup, loading: signupLoading, error: signError } = useSignUp();
+  const {
+    checkUsername,
+    loading: usernameLoading,
+    error: usernameError,
+    data: usernameData,
+  } = useCheckUsername();
+
+  const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
+  const isValidUsernameFormat = usernameRegex.test(data.username);
+
+  // Get username validation message
+  const getUsernameValidationMessage = () => {
+    if (!data.username) {
+      return;
+    }
+    if (data.username.length < 5) {
+      return {
+        type: "error",
+        message: "Username must be at least 5 characters",
+      };
+    }
+    if (data.username.length > 20) {
+      return {
+        type: "error",
+        message: "Username must be 20 characters or less",
+      };
+    }
+    if (!isValidUsernameFormat) {
+      return {
+        type: "error",
+        message: "Only lowercase letters, numbers, and underscores allowed",
+      };
+    }
+    return null; // Valid format, will check availability via API
+  };
+
+  const usernameValidationMsg = getUsernameValidationMessage();
+
+  useEffect(() => {
+    if (!isValidUsernameFormat) {
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        await checkUsername(data.username);
+      } catch (error) {
+        console.error(error);
+        console.log("failed to get username!", error);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [data.username, checkUsername, isValidUsernameFormat]);
 
   // Sync URL with activeTab on mount
   useEffect(() => {
@@ -48,17 +108,24 @@ const AuthForm = () => {
 
     try {
       if (activeTab === "login") {
-        await login({ email: data.email, password: data.password });
+        const success = await login({
+          email: data.email,
+          password: data.password,
+        });
+        if (success) {
+          navigate("/");
+        }
       } else {
-        await signup({
+        const success = await signup({
           username: data.username,
           email: data.email,
           password: data.password,
         });
-      }
 
-      // navigate to home only on success
-      navigate("/");
+        if (success) {
+          navigate("/");
+        }
+      }
     } catch (error) {
       console.log("Authentication failed!", error);
     }
@@ -89,7 +156,9 @@ const AuthForm = () => {
 
         {activeTab === "login" ? (
           <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Welcome Back</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Welcome Back
+            </h1>
             <p className="text-dark-20 text-xs md:text-sm">
               Log in to your account to continue.
             </p>
@@ -108,7 +177,10 @@ const AuthForm = () => {
         <form onSubmit={handleForm}>
           <TabsContent value="login" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label htmlFor="login-email" className="text-sm font-medium text-white">
+              <Label
+                htmlFor="login-email"
+                className="text-sm font-medium text-white"
+              >
                 Email
               </Label>
               <Input
@@ -119,19 +191,17 @@ const AuthForm = () => {
                 onChange={onchangeHandler}
                 placeholder="name@example.com"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="login-password" className="text-sm font-medium text-white">
+                <Label
+                  htmlFor="login-password"
+                  className="text-sm font-medium text-white"
+                >
                   Password
                 </Label>
-                {/* <button
-                    type="submit"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </button> */}
               </div>
               <Input
                 id="login-password"
@@ -141,6 +211,7 @@ const AuthForm = () => {
                 onChange={onchangeHandler}
                 placeholder="Enter your password"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -150,14 +221,22 @@ const AuthForm = () => {
                 </Alert>
               )}
             </div>
-            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
+            <Button
+              type="submit"
+              variant="secondary"
+              className="w-full h-11 mt-6"
+              size="lg"
+            >
               {loginLoading ? <Spinner /> : "Log In"}
             </Button>
           </TabsContent>
 
           <TabsContent value="signup" className="space-y-4 mt-0">
             <div className="space-y-2">
-              <Label htmlFor="signup-username" className="text-sm font-medium text-white">
+              <Label
+                htmlFor="signup-username"
+                className="text-sm font-medium text-white"
+              >
                 Username
               </Label>
               <Input
@@ -168,10 +247,50 @@ const AuthForm = () => {
                 type="text"
                 placeholder="johndoe"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
+            {/* Username validation feedback */}
             <div className="space-y-2">
-              <Label htmlFor="signup-email" className="text-sm font-medium text-white">
+              {usernameValidationMsg ? (
+                <Alert
+                  variant={
+                    usernameValidationMsg.type === "error"
+                      ? "destructive"
+                      : "default"
+                  }
+                >
+                  <AlertDescription>
+                    {usernameValidationMsg.message}
+                  </AlertDescription>
+                </Alert>
+              ) : isValidUsernameFormat ? (
+                usernameLoading ? (
+                  <div className="flex items-center gap-2 text-blue-500 text-sm">
+                    <Spinner />
+                    <span>Checking username availability...</span>
+                  </div>
+                ) : usernameError ? (
+                  <Alert variant="destructive">
+                    <AlertDescription>{usernameError}</AlertDescription>
+                  </Alert>
+                ) : usernameData ? (
+                  <p
+                    className={`text-sm ${
+                      usernameData.available ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {usernameData.message}
+                  </p>
+                ) : null
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="signup-email"
+                className="text-sm font-medium text-white"
+              >
                 Email
               </Label>
               <Input
@@ -182,10 +301,14 @@ const AuthForm = () => {
                 type="email"
                 placeholder="name@example.com"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="signup-password" className="text-sm font-medium text-white">
+              <Label
+                htmlFor="signup-password"
+                className="text-sm font-medium text-white"
+              >
                 Password
               </Label>
               <Input
@@ -196,6 +319,7 @@ const AuthForm = () => {
                 type="password"
                 placeholder="Create a strong password"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             {/* <div className="space-y-2">
@@ -219,7 +343,12 @@ const AuthForm = () => {
                 </Alert>
               )}
             </div>
-            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
+            <Button
+              type="submit"
+              variant="secondary"
+              className="w-full h-11 mt-6"
+              size="lg"
+            >
               {signupLoading ? <Spinner /> : "Create Account"}
             </Button>
           </TabsContent>
@@ -228,7 +357,10 @@ const AuthForm = () => {
 
       <div className="mt-6 text-center text-xs md:text-sm text-dark-20">
         By continuing, you agree to our and{" "}
-        <Link to="/privacy-policy" className="text-primary-100 underline hover:cursor-pointer">
+        <Link
+          to="/privacy-policy"
+          className="text-primary-100 underline hover:cursor-pointer"
+        >
           Privacy Policy
         </Link>
       </div>

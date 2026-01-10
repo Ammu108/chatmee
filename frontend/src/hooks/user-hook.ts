@@ -1,6 +1,47 @@
 import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
-import { findReceiverDetailsApi, findUserByEmailApi } from "../api/user-api";
+import {
+  checkUsernameAPI,
+  findReceiverDetailsApi,
+  findUserByUsernameApi,
+} from "../api/user-api";
+
+// =================== SignUp Hook ===================
+interface UsernameData {
+  available: boolean;
+  message: string;
+}
+
+export const useCheckUsername = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<UsernameData | null>(null);
+
+  const checkUsername = useCallback(async (username: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await checkUsernameAPI(username);
+
+      console.log("verifying username :", result);
+
+      if (!result) {
+        throw new Error("cannot find the username");
+      }
+
+      setData(result);
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "error in finding users!";
+      setError(errorMessage);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { checkUsername, data, loading, error };
+};
 
 // =================== Finding User Hook ===================
 
@@ -15,17 +56,17 @@ export interface UserData {
   error: string | null;
 }
 
-export const useFindUserByEmail = () => {
+export const useFindUserByUsername = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<UserData | null>(null);
 
-  const findUserByEmail = async (email: string) => {
+  const findUserByUsername = async (username: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      const result = await findUserByEmailApi(email);
+      const result = await findUserByUsernameApi(username);
 
       console.log("finding users from db :", result);
 
@@ -43,7 +84,7 @@ export const useFindUserByEmail = () => {
       setLoading(false);
     }
   };
-  return { findUserByEmail, data, loading, error };
+  return { findUserByUsername, data, loading, error };
 };
 
 // =================== Getting Receiver Details ===================
