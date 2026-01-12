@@ -20,7 +20,7 @@ export const checkUsernameAPI = async (username: string) => {
 
 // =================== Searching Users API ===================
 
-export const findUserByUsernameApi = async (username: string) => {
+export const searchUsersApi = async (username: string) => {
   try {
     const res = await axiosInstance.get(`/auth/checkusers`, {
       params: { username },

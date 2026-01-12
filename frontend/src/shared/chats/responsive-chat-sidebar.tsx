@@ -1,13 +1,23 @@
-import { IconPencilPlus, IconSearch, IconUserCircle, IconX } from "@tabler/icons-react";
+import {
+  IconPencilPlus,
+  IconSearch,
+  IconUserCircle,
+  IconX,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import ModalOverlayItems from "../../components/modal-list-items";
 import { Button } from "../../components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { Input } from "../../components/ui/input";
 import { Sheet, SheetContent, SheetHeader } from "../../components/ui/sheet";
 import { Spinner } from "../../components/ui/spinner";
 import { useLogout } from "../../hooks/auth-hook";
-import { useFindUserByUsername } from "../../hooks/user-hook";
+import { useSearchUsers } from "../../hooks/user-hook";
 import { useAuthState } from "../../store/auth-store";
 
 interface ResponsiveChatSidebarProps {
@@ -15,11 +25,14 @@ interface ResponsiveChatSidebarProps {
   setIsOpen: (open: boolean) => void;
 }
 
-const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps) => {
+const ResponsiveChatSidebar = ({
+  isOpen,
+  setIsOpen,
+}: ResponsiveChatSidebarProps) => {
   const { logout } = useLogout();
   const user = useAuthState((s) => s.user);
   const [searchQuery, setSearchQuery] = useState("");
-  const { findUserByUsername, data, loading, error } = useFindUserByUsername();
+  const { searchUsers, data, loading, error } = useSearchUsers();
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleLogout = async () => {
@@ -33,7 +46,7 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
   const handleSearchQuery = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await findUserByUsername(searchQuery);
+      await searchUsers(searchQuery);
     } catch (error) {
       console.log("failed to get user!", error);
     }
@@ -60,7 +73,7 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
       );
     }
 
-    if (!data) {
+    if (!data || data.length === 0) {
       return (
         <div className="flex h-full items-center justify-center text-gray-400 text-sm">
           No chats found
@@ -68,7 +81,12 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
       );
     }
 
-    return <ModalOverlayItems data={data} onSelectUser={() => setOpenDialog(false)} />;
+    return (
+      <ModalOverlayItems
+        data={data}
+        onSelectUser={() => setOpenDialog(false)}
+      />
+    );
   };
 
   const clearInputField = () => {
@@ -92,7 +110,11 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
               {user?.id && (
                 <div className="flex flex-row gap-4 items-center justify-center">
                   <div>
-                    <Button variant={"secondary"} onClick={handleLogout} size="sm">
+                    <Button
+                      variant={"secondary"}
+                      onClick={handleLogout}
+                      size="sm"
+                    >
                       Logout
                     </Button>
                   </div>
@@ -145,7 +167,11 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
                   {user?.id && (
                     <div className="flex flex-row gap-4 items-center justify-center">
                       <div>
-                        <Button variant={"secondary"} onClick={handleLogout} size="sm">
+                        <Button
+                          variant={"secondary"}
+                          onClick={handleLogout}
+                          size="sm"
+                        >
                           Logout
                         </Button>
                       </div>
@@ -196,10 +222,15 @@ const ResponsiveChatSidebar = ({ isOpen, setIsOpen }: ResponsiveChatSidebarProps
           aria-describedby={undefined}
         >
           <DialogHeader>
-            <DialogTitle className="text-2xl text-slate-300">Find Users</DialogTitle>
+            <DialogTitle className="text-2xl text-slate-300">
+              Find Users
+            </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSearchQuery} className="flex-1 overflow-hidden flex flex-col">
+          <form
+            onSubmit={handleSearchQuery}
+            className="flex-1 overflow-hidden flex flex-col"
+          >
             <div className="relative mb-6">
               <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
               <Input

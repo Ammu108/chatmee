@@ -3,7 +3,7 @@ import { eq, or } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
 import { userTable } from "../db/schema.js";
-import { generateToken } from "../lib/utils.js";
+import { generateToken, normalizeUsername } from "../lib/utils.js";
 
 // =================== Check Username API ===================
 
@@ -27,11 +27,14 @@ export const checkusername = async (req: Request, res: Response) => {
         .json({ valid: false, available: false, message: "Invalid username format." });
     }
 
+    // 3️⃣ Normalize username (CRITICAL)
+    const normalizedUsername = normalizeUsername(username);
+
     // check that username does not already exist
     const existingUsername = await db
       .select()
       .from(userTable)
-      .where(eq(userTable.username, username))
+      .where(eq(userTable.usernameNormalized, normalizedUsername))
       .limit(1);
 
     if (existingUsername.length > 0) {
@@ -73,11 +76,16 @@ export const signup = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
+    // 4️⃣ Normalize username (CRITICAL STEP)
+    const normalizedUsername = normalizeUsername(username);
+
     // check if user with email already exists
     const existingUser = await db
       .select()
       .from(userTable)
-      .where(or(eq(userTable.email, email), eq(userTable.username, username)))
+      .where(
+        or(eq(userTable.email, email), eq(userTable.usernameNormalized, normalizedUsername)),
+      )
       .limit(1);
 
     if (existingUser.length > 0) {
@@ -86,9 +94,6 @@ export const signup = async (req: Request, res: Response) => {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Store both original and normalized username
-    const normalizedUsername = username.toLowerCase().trim();
 
     // Create new user
     const [newUser] = await db

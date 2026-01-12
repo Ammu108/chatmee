@@ -13,3 +13,11 @@ export const generateToken = (userId: string, res: Response) => {
     secure: process.env.NODE_ENV !== "development",
   });
 };
+
+// src/utils/normalizeUsername.ts
+export const normalizeUsername = (username: string): string => {
+  return username
+    .toLowerCase()
+    .replace(/[_\s]+/g, "") // remove spaces & underscores
+    .replace(/[^a-z0-9]/g, ""); // remove special characters
+};

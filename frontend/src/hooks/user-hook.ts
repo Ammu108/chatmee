@@ -1,10 +1,6 @@
 import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  checkUsernameAPI,
-  findReceiverDetailsApi,
-  findUserByUsernameApi,
-} from "../api/user-api";
+import { checkUsernameAPI, findReceiverDetailsApi, searchUsersApi } from "../api/user-api";
 
 // =================== SignUp Hook ===================
 interface UsernameData {
@@ -56,17 +52,17 @@ export interface UserData {
   error: string | null;
 }
 
-export const useFindUserByUsername = () => {
+export const useSearchUsers = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<UserData | null>(null);
+  const [data, setData] = useState<UserData[]>([]);
 
-  const findUserByUsername = async (username: string) => {
+  const searchUsers = async (username: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      const result = await findUserByUsernameApi(username);
+      const result = await searchUsersApi(username);
 
       console.log("finding users from db :", result);
 
@@ -84,7 +80,7 @@ export const useFindUserByUsername = () => {
       setLoading(false);
     }
   };
-  return { findUserByUsername, data, loading, error };
+  return { searchUsers, data, loading, error };
 };
 
 // =================== Getting Receiver Details ===================

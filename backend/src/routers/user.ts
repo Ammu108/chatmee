@@ -1,11 +1,12 @@
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
 import { messageTable, userTable } from "../db/schema.js";
+import { normalizeUsername } from "../lib/utils.js";
 
 // =================== Find Users API ( via their unique email ) ===================
 
-export const findUserByUsername = async (req: Request, res: Response) => {
+export const searchUsers = async (req: Request, res: Response) => {
   const { username } = req.query;
 
   // Validate email parameter
@@ -14,33 +15,31 @@ export const findUserByUsername = async (req: Request, res: Response) => {
   }
 
   try {
-    // Normalize search input to lowercase
-    const normalizedSearch = username.toLowerCase().trim();
-    // Check if user with provided username exists
+    // Normalize search input (SAME AS SIGNUP)
+    const normalizedSearch = normalizeUsername(username);
+
     const userByUsername = await db
       .select()
       .from(userTable)
-      .where(eq(userTable.usernameNormalized, normalizedSearch))
-      .limit(1);
+      .where(like(userTable.usernameNormalized, `%${normalizedSearch}%`))
+      .limit(10);
 
     if (userByUsername.length === 0) {
       return res.status(404).json({ message: "user not found!" });
     }
 
-    // Ensure user ID exists
-    if (!userByUsername[0] || !userByUsername[0].id) {
-      return res.status(500).json({ message: "User data is invalid!" });
-    }
-
-    // Respond with user data excluding password
-    return res.status(200).json({
+    // Map all found users to the response format
+    const users = userByUsername.map((user) => ({
       message: "user found.",
       searchedUser: {
-        id: userByUsername[0].id,
-        username: userByUsername[0].username,
-        email: userByUsername[0].email,
+        id: user.id,
+        username: user.username,
+        email: user.email,
       },
-    });
+    }));
+
+    // Respond with array of users excluding password
+    return res.status(200).json(users);
   } catch (error) {
     console.log("Error in finding user by username", error);
     res.status(500).json({ message: "Internal Server Error" });
