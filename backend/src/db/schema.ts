@@ -1,10 +1,11 @@
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 // =================== User Table Schema ===================
 
 export const userTable = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  username: varchar("username", { length: 255 }).notNull(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
+  usernameNormalized: varchar("usernameNormalized", { length: 255 }).notNull().unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
   createdAt: varchar("created_at", { length: 255 }).notNull(),
@@ -21,6 +22,6 @@ export const messageTable = pgTable("message", {
   receiver_id: uuid("receiver_id")
     .references(() => userTable.id)
     .notNull(),
-  content: varchar("text").notNull(),
+  content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

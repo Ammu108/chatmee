@@ -7,6 +7,7 @@ import { Label } from "../../components/ui/label";
 import { Spinner } from "../../components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { useLogin, useSignUp } from "../../hooks/auth-hook";
+import { useCheckUsername } from "../../hooks/user-hook";
 import { useAuthFormStore } from "../../store/auth-store";
 
 const AuthForm = () => {
@@ -23,6 +24,60 @@ const AuthForm = () => {
 
   const { login, loading: loginLoading, error: loginError } = useLogin();
   const { signup, loading: signupLoading, error: signError } = useSignUp();
+  const {
+    checkUsername,
+    loading: usernameLoading,
+    error: usernameError,
+    data: usernameData,
+  } = useCheckUsername();
+
+  const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
+  const isValidUsernameFormat = usernameRegex.test(data.username);
+
+  // Get username validation message
+  const getUsernameValidationMessage = () => {
+    if (!data.username) {
+      return;
+    }
+    if (data.username.length < 5) {
+      return {
+        type: "error",
+        message: "Username must be at least 5 characters",
+      };
+    }
+    if (data.username.length > 20) {
+      return {
+        type: "error",
+        message: "Username must be 20 characters or less",
+      };
+    }
+    if (!isValidUsernameFormat) {
+      return {
+        type: "error",
+        message: "Only lowercase letters, numbers, and underscores allowed",
+      };
+    }
+    return null; // Valid format, will check availability via API
+  };
+
+  const usernameValidationMsg = getUsernameValidationMessage();
+
+  useEffect(() => {
+    if (!isValidUsernameFormat) {
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        await checkUsername(data.username);
+      } catch (error) {
+        console.error(error);
+        console.log("failed to get username!", error);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [data.username, checkUsername, isValidUsernameFormat]);
 
   // Sync URL with activeTab on mount
   useEffect(() => {
@@ -48,17 +103,24 @@ const AuthForm = () => {
 
     try {
       if (activeTab === "login") {
-        await login({ email: data.email, password: data.password });
+        const success = await login({
+          email: data.email,
+          password: data.password,
+        });
+        if (success) {
+          navigate("/");
+        }
       } else {
-        await signup({
+        const success = await signup({
           username: data.username,
           email: data.email,
           password: data.password,
         });
-      }
 
-      // navigate to home only on success
-      navigate("/");
+        if (success) {
+          navigate("/");
+        }
+      }
     } catch (error) {
       console.log("Authentication failed!", error);
     }
@@ -119,6 +181,7 @@ const AuthForm = () => {
                 onChange={onchangeHandler}
                 placeholder="name@example.com"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -126,12 +189,6 @@ const AuthForm = () => {
                 <Label htmlFor="login-password" className="text-sm font-medium text-white">
                   Password
                 </Label>
-                {/* <button
-                    type="submit"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </button> */}
               </div>
               <Input
                 id="login-password"
@@ -141,6 +198,7 @@ const AuthForm = () => {
                 onChange={onchangeHandler}
                 placeholder="Enter your password"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -168,8 +226,39 @@ const AuthForm = () => {
                 type="text"
                 placeholder="johndoe"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
+            {/* Username validation feedback */}
+            <div className="space-y-2">
+              {usernameValidationMsg ? (
+                <Alert
+                  variant={usernameValidationMsg.type === "error" ? "destructive" : "default"}
+                >
+                  <AlertDescription>{usernameValidationMsg.message}</AlertDescription>
+                </Alert>
+              ) : isValidUsernameFormat ? (
+                usernameLoading ? (
+                  <div className="flex items-center gap-2 text-blue-500 text-sm">
+                    <Spinner />
+                    <span>Checking username availability...</span>
+                  </div>
+                ) : usernameError ? (
+                  <Alert variant="destructive">
+                    <AlertDescription>{usernameError}</AlertDescription>
+                  </Alert>
+                ) : usernameData ? (
+                  <p
+                    className={`text-sm ${
+                      usernameData.available ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {usernameData.message}
+                  </p>
+                ) : null
+              ) : null}
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="signup-email" className="text-sm font-medium text-white">
                 Email
@@ -182,6 +271,7 @@ const AuthForm = () => {
                 type="email"
                 placeholder="name@example.com"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -196,6 +286,7 @@ const AuthForm = () => {
                 type="password"
                 placeholder="Create a strong password"
                 className="h-11 text-gray-300"
+                required
               />
             </div>
             {/* <div className="space-y-2">

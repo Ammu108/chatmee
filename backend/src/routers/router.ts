@@ -1,10 +1,11 @@
 import express from "express";
 import { protectedRoute } from "../middleware/auth-middleware.js";
-import { login, logout, signup } from "./auth.js";
-import { findUserByEmail } from "./user.js";
+import { checkusername, login, logout, signup } from "./auth.js";
+import { fetchReceiverDetails, searchUsers, sendMessage } from "./user.js";
 
 const router = express.Router();
 
+router.get("/checkusername", checkusername);
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
@@ -16,6 +17,9 @@ router.get("/me", protectedRoute, (_req, res) => {
   });
 });
 
-router.get("/search", protectedRoute, findUserByEmail);
+router.get("/checkusers", protectedRoute, searchUsers);
+router.get("/chat/:receiverId", protectedRoute, fetchReceiverDetails);
+
+router.post("/sendmessage", protectedRoute, sendMessage);
 
 export default router;
