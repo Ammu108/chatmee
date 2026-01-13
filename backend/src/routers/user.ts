@@ -1,7 +1,7 @@
-import { eq, like } from "drizzle-orm";
+import { and, eq, like } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
-import { messageTable, userTable } from "../db/schema.js";
+import { conversationTable, messageTable, userTable } from "../db/schema.js";
 import { normalizeUsername } from "../lib/utils.js";
 
 // =================== Find Users API ( via their unique email ) ===================
@@ -88,46 +88,86 @@ export const fetchReceiverDetails = async (req: Request, res: Response) => {
   }
 };
 
-// =================== Find User Messages based On Their ID ===================
+// =================== Send Messages One To One ===================
 
 export const sendMessage = async (req: Request, res: Response) => {
-  const { senderId, receiverId, content } = req.body;
+  const senderId = req.user?.id;
+  const { receiverId, content } = req.body;
 
   try {
     // validate user message
     if (!senderId || !receiverId || !content) {
-      return res
-        .status(400)
-        .json({ message: "Missing required fields: senderId, receiverId, or content!" });
+      return res.status(400).json({ message: "Invalid request data." });
     }
 
-    // verify that receiver is exist
-    const [receiver] = await db
-      .select()
+    if (senderId === receiverId) {
+      return res.status(400).json({ message: "Cannot message yourself" });
+    }
+
+    // verify receiver exists
+    const receiver = await db
+      .select({ id: userTable.id })
       .from(userTable)
       .where(eq(userTable.id, receiverId))
       .limit(1);
 
-    if (!receiver) {
-      return res.status(404).json({ message: "Recipient user not found!" });
+    if (receiver.length === 0) {
+      return res.status(404).json({ message: "Receiver not found!" });
     }
-    // Insert message into the database
-    const [newMessages] = await db
+
+    // 1️⃣  SORT user ids (VERY IMPORTANT)
+    const [userOneId, userTwoId] =
+      senderId < receiverId ? [senderId, receiverId] : [receiverId, senderId];
+
+    // find existing conversations
+    const conversation = await db
+      .select()
+      .from(conversationTable)
+      .where(
+        and(
+          eq(conversationTable.user_one_id, userOneId),
+          eq(conversationTable.user_two_id, userTwoId),
+        ),
+      )
+      .limit(1);
+
+    let conversationId: string;
+
+    // 3️⃣ Create conversation if not exists
+    if (conversation.length === 0) {
+      const [newConversation] = await db
+        .insert(conversationTable)
+        .values({ user_one_id: userOneId, user_two_id: userTwoId })
+        .returning();
+
+      if (!newConversation?.id) {
+        return res.status(500).json({ message: "Failed to create conversation" });
+      }
+      conversationId = newConversation.id;
+    } else {
+      if (!conversation[0]?.id) {
+        return res.status(500).json({ message: "Failed to retrieve conversation" });
+      }
+      conversationId = conversation[0].id;
+    }
+
+    // 4️⃣ Insert message
+    const [newMessage] = await db
       .insert(messageTable)
-      .values({
-        sender_id: senderId,
-        receiver_id: receiverId,
-        content: content,
-      })
+      .values({ conversation_id: conversationId, sender_id: senderId, content })
       .returning();
 
+    // 7️⃣ Update conversation metadata
+    await db
+      .update(conversationTable)
+      .set({ lastMessage: content, lastMessageAt: new Date() })
+      .where(eq(conversationTable.id, conversationId));
+
+    // 8️⃣ Response
     return res.status(201).json({
-      messages: "message sent and stored in db.",
-      data: newMessages,
-      receiverDetail: {
-        name: receiver.username,
-        email: receiver.email,
-      },
+      message: "Message sent successfully",
+      conversationId,
+      data: newMessage,
     });
   } catch (error) {
     console.log("Error in finding user by email", error);

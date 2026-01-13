@@ -11,15 +11,15 @@ router.post("/login", login);
 router.post("/logout", logout);
 
 // Check authentication status
-router.get("/me", protectedRoute, (_req, res) => {
+router.get("/me", protectedRoute, (req, res) => {
   res.status(200).json({
-    user: res.locals.user,
+    user: req.user,
   });
 });
 
 router.get("/checkusers", protectedRoute, searchUsers);
 router.get("/chat/:receiverId", protectedRoute, fetchReceiverDetails);
 
-router.post("/sendmessage", protectedRoute, sendMessage);
+router.post("/messages", protectedRoute, sendMessage);
 
 export default router;

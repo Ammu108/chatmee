@@ -1,8 +1,14 @@
 import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
-import { checkUsernameAPI, findReceiverDetailsApi, searchUsersApi } from "../api/user-api";
+import {
+  checkUsernameAPI,
+  findReceiverDetailsApi,
+  searchUsersApi,
+  sendMessagesApi,
+} from "../api/user-api";
 
 // =================== SignUp Hook ===================
+
 interface UsernameData {
   available: boolean;
   message: string;
@@ -83,7 +89,7 @@ export const useSearchUsers = () => {
   return { searchUsers, data, loading, error };
 };
 
-// =================== Getting Receiver Details ===================
+// =================== Getting Receiver Details Hook ===================
 
 interface ReceiverDetailsProps {
   message: string;
@@ -123,4 +129,50 @@ export const useReceiverDetails = () => {
     }
   }, []);
   return { getReceiverDetails, data, loading, error };
+};
+
+// =================== Sending Messages Hook ===================
+
+interface SendMessageResponse {
+  message: string;
+  conversationId: string;
+  data: {
+    id: string;
+    conversation_id: string;
+    sender_id: string;
+    content: string;
+    createdAt: string;
+  };
+}
+
+export const useSendMessages = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const sendMessage = async (
+    receiverId: string,
+    content: string,
+  ): Promise<SendMessageResponse | undefined> => {
+    if (!receiverId || !content.trim()) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await sendMessagesApi(receiverId, content);
+      if (!result) {
+        throw new Error("sending messages failed!");
+      }
+
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Sending messages failed!";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { sendMessage, loading, error };
 };
