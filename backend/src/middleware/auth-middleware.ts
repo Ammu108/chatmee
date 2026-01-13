@@ -31,12 +31,12 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
       .where(eq(userTable.id, decoded.userId))
       .limit(1);
 
-    if (!user.length) {
+    if (!user.length || !user[0]) {
       return res.status(401).json({ message: "Not authorized, user not found" });
     }
 
     // proceed to next middleware
-    res.locals.user = user[0];
+    req.user = user[0];
     next();
   } catch (error) {
     console.log("Error in login the account", error);

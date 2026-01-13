@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Spinner } from "../../components/ui/spinner";
 import { useReceiverDetails } from "../../hooks/user-hook";
+import UserChatInput from "./user-chat-input";
 
 interface UserChatNavbarProps {
   isOpen: boolean;
@@ -64,6 +65,14 @@ const UserChatSpace = ({ isOpen, setIsOpen }: UserChatNavbarProps) => {
     );
   }
 
+  if (!data?.receiverData?.id) {
+    return (
+      <div className="flex h-full items-center justify-center text-gray-400 text-sm">
+        No receiver data available
+      </div>
+    );
+  }
+
   if (!data) {
     return (
       <div className="flex h-full items-center justify-center text-gray-400 text-sm">
@@ -75,7 +84,7 @@ const UserChatSpace = ({ isOpen, setIsOpen }: UserChatNavbarProps) => {
   return (
     <div className="bg-black h-screen relative flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* chat inbox header */}
-      <div className="flex  flex-row items-center justify-between bg-dark-100 py-2 px-2 lg:px-8 sticky top-0 z-50">
+      <div className="flex flex-row items-center justify-between bg-dark-100 py-2 px-2 lg:px-8 sticky top-0 z-50">
         <div className="flex-row flex items-center gap-2">
           <IconUserCircle className="text-gray-400" size="42" />
           <div>
@@ -124,6 +133,11 @@ const UserChatSpace = ({ isOpen, setIsOpen }: UserChatNavbarProps) => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* user chat input field */}
+      <div className="w-full bg-dark-100 sticky bottom-0 z-50">
+        <UserChatInput receiverId={data.receiverData.id} />
       </div>
     </div>
   );

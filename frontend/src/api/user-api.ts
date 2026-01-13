@@ -50,3 +50,29 @@ export const findReceiverDetailsApi = async (receiverid: string) => {
     throw new Error(errorMessage);
   }
 };
+
+// =================== Send Messages Between Two Users ===================
+
+// interface SendMessagePayload {
+//   receiverId: string;
+//   content: string;
+// }
+
+export const sendMessagesApi = async (receiverId: string, content: string) => {
+  try {
+    const res = await axiosInstance.post(
+      `/auth/messages`,
+      { receiverId, content },
+      {
+        withCredentials: true,
+      },
+    );
+
+    return res.data;
+  } catch (error) {
+    const errorMessage = axios.isAxiosError(error)
+      ? error.response?.data?.message
+      : "Sending the messages failed!";
+    throw new Error(errorMessage);
+  }
+};

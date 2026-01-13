@@ -23,7 +23,7 @@ const ModalOverlayItems = ({ data, onSelectUser }: ChatListItemsProps) => {
       {
         replace: true,
         preventScrollReset: true,
-      }
+      },
     );
     // Call the callback to close the modal
     onSelectUser?.();
@@ -44,18 +44,13 @@ const ModalOverlayItems = ({ data, onSelectUser }: ChatListItemsProps) => {
           >
             <div className="flex flex-row gap-3 items-center flex-1 min-w-0">
               <div>
-                <IconUserCircle
-                  className="text-gray-400 flex-shrink-0"
-                  size="46"
-                />
+                <IconUserCircle className="text-gray-400 flex-shrink-0" size="46" />
               </div>
               <div className="flex flex-col items-start justify-center min-w-0 flex-1">
                 <h4 className="font-semibold text-lg text-gray-200 truncate">
                   {user?.username}
                 </h4>
-                <p className="font-medium text-sm text-gray-400 truncate">
-                  {user?.email}
-                </p>
+                <p className="font-medium text-sm text-gray-400 truncate">{user?.email}</p>
               </div>
             </div>
           </button>
