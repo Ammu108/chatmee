@@ -41,7 +41,7 @@ export const searchUsers = async (req: Request, res: Response) => {
     // Respond with array of users excluding password
     return res.status(200).json(users);
   } catch (error) {
-    console.log("Error in finding user by username", error);
+    console.log("Error in finding user by username!", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -83,7 +83,7 @@ export const fetchReceiverDetails = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.log("Error in finding user by email", error);
+    console.log("Error in fetching the receiver details!", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -170,7 +170,65 @@ export const sendMessage = async (req: Request, res: Response) => {
       data: newMessage,
     });
   } catch (error) {
-    console.log("Error in finding user by email", error);
+    console.log("Error in sending the messages!", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// =================== Fetch Messages Between Two Users ===================
+
+export const fetchMessages = async (req: Request, res: Response) => {
+  const senderId = req.user?.id;
+  const { receiverId } = req.params;
+
+  // validate user message
+  if (!senderId || !receiverId) {
+    return res.status(400).json({ message: "Invalid request data." });
+  }
+
+  try {
+    // Sort user ids
+    const [userOneId, userTwoId] =
+      senderId < receiverId ? [senderId, receiverId] : [receiverId, senderId];
+
+    // find conversation
+    const conversation = await db
+      .select()
+      .from(conversationTable)
+      .where(
+        and(
+          eq(conversationTable.user_one_id, userOneId),
+          eq(conversationTable.user_two_id, userTwoId),
+        ),
+      )
+      .limit(1);
+
+    if (conversation.length === 0) {
+      return res.status(200).json({
+        conversationId: null,
+        message: [],
+      });
+    }
+
+    const conversationId = conversation[0]?.id;
+
+    if (!conversationId) {
+      return res.status(500).json({ message: "Invalid conversation data" });
+    }
+
+    // Fetch Messages
+    const messages = await db
+      .select()
+      .from(messageTable)
+      .where(eq(messageTable.conversation_id, conversationId))
+      .orderBy(messageTable.createdAt);
+
+    return res.status(200).json({
+      conversationId,
+      messages,
+    });
+  } catch (error) {
+    console.log("Error in fetching the messages!", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
