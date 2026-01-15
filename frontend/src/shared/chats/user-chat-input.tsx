@@ -3,7 +3,7 @@ import type React from "react";
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { useSendMessages } from "../../hooks/user-hook";
+import { useSendMessages } from "../../hooks/use-user";
 import type { Message } from "../../types/message";
 
 interface UserChatInputProps {

@@ -1,6 +1,6 @@
 import LOGO from "../../assets/chatmee-logo.png";
 import { Button } from "../../components/ui/button";
-import { useLogout } from "../../hooks/auth-hook";
+import { useLogout } from "../../hooks/use-auth";
 import { useAuthState } from "../../store/auth-store";
 
 const AuthNavbar = () => {

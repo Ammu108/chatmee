@@ -1,6 +1,6 @@
 import { IconUserCircle } from "@tabler/icons-react";
 import { useSearchParams } from "react-router-dom";
-import type { UserData } from "../hooks/user-hook";
+import type { UserData } from "../hooks/use-user";
 
 interface ChatListItemsProps {
   data: UserData[];
@@ -32,12 +32,11 @@ const ModalOverlayItems = ({ data, onSelectUser }: ChatListItemsProps) => {
   return (
     <div className="overflow-y-auto space-y-3 pr-2">
       {data.map((item) => {
-        // Accessing the user object based on your structure
         const user = item.searchedUser;
 
         return (
           <button
-            key={user?.id} // Essential for list performance
+            key={user?.id}
             type="button"
             onClick={() => user?.id && updateParams(user.id)}
             className="flex w-full flex-row items-center justify-between p-3 rounded-lg hover:bg-dark-40 cursor-pointer transition-colors duration-200"

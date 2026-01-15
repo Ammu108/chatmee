@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import Index from "./(protected)/Home";
-import Auth from "./(public)/auth";
+import Index from "./(protected)/Home/chat-page";
+import Auth from "./(public)/auth-page";
 import PrivacyPolicy from "./(public)/privacy-policy";
 import CHATMEE_GULL_LOGO from "./assets/chatmee-full-logo.png";
+import SearchModal from "./components/search-modal";
 import { useAuthState } from "./store/auth-store";
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
         <Route path="/" element={user ? <Index /> : <Navigate to="/login" replace />} />
       </Routes>
       <ToastContainer theme="dark" />
+      <SearchModal />
     </div>
   );
 }

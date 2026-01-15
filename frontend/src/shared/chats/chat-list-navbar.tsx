@@ -1,7 +1,7 @@
 import { IconPencilPlus, IconSearch, IconUserCircle } from "@tabler/icons-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { useLogout } from "../../hooks/auth-hook";
+import { useLogout } from "../../hooks/use-auth";
 import { useAuthState } from "../../store/auth-store";
 
 const ChatListNavbar = () => {
