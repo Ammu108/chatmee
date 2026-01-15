@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 import {
   checkUsernameAPI,
+  fetchMessagesApi,
   findReceiverDetailsApi,
   searchUsersApi,
   sendMessagesApi,
@@ -175,4 +176,46 @@ export const useSendMessages = () => {
   };
 
   return { sendMessage, loading, error };
+};
+
+// =================== Fetching Messages Hook ===================
+
+interface FetchMessagesProps {
+  conversationId: string;
+  messages: {
+    id: string;
+    conversation_id: string;
+    sender_id: string;
+    content: string;
+    isRead: boolean;
+    createdAt: string;
+  }[];
+}
+
+export const useFetchMessages = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<FetchMessagesProps | null>(null);
+
+  const fetchMessages = useCallback(async (receiverId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await fetchMessagesApi(receiverId);
+
+      if (!result) {
+        throw new Error("fetching messages failed!");
+      }
+      setData(result);
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Sending messages failed!";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { fetchMessages, loading, error, data };
 };

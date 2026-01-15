@@ -76,3 +76,18 @@ export const sendMessagesApi = async (receiverId: string, content: string) => {
     throw new Error(errorMessage);
   }
 };
+
+// =================== Fetching Messages Between Two Users ===================
+
+export const fetchMessagesApi = async (receiverId: string) => {
+  try {
+    const res = await axiosInstance.get(`auth/fetch/${receiverId}`, { withCredentials: true });
+
+    return res.data;
+  } catch (error) {
+    const errorMessage = axios.isAxiosError(error)
+      ? error.response?.data?.message
+      : "Fetching the messages failed!";
+    throw new Error(errorMessage);
+  }
+};
