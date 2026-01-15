@@ -6,8 +6,8 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Spinner } from "../../components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { useLogin, useSignUp } from "../../hooks/auth-hook";
-import { useCheckUsername } from "../../hooks/user-hook";
+import { useLogin, useSignUp } from "../../hooks/use-auth";
+import { useCheckUsername } from "../../hooks/use-user";
 import { useAuthFormStore } from "../../store/auth-store";
 
 const AuthForm = () => {
@@ -57,7 +57,7 @@ const AuthForm = () => {
         message: "Only lowercase letters, numbers, and underscores allowed",
       };
     }
-    return null; // Valid format, will check availability via API
+    return null;
   };
 
   const usernameValidationMsg = getUsernameValidationMessage();
