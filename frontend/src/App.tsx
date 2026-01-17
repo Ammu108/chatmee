@@ -6,6 +6,7 @@ import Auth from "./(public)/auth-page";
 import PrivacyPolicy from "./(public)/privacy-policy";
 import CHATMEE_GULL_LOGO from "./assets/chatmee-full-logo.png";
 import SearchModal from "./components/search-modal";
+import { TOAST_THEME } from "./config/app.config";
 import { useAuthState } from "./store/auth-store";
 
 function App() {
@@ -37,7 +38,7 @@ function App() {
         {/* =================== Protected Route =================== */}
         <Route path="/" element={user ? <Index /> : <Navigate to="/login" replace />} />
       </Routes>
-      <ToastContainer theme="dark" />
+      <ToastContainer theme={TOAST_THEME} />
       <SearchModal />
     </div>
   );

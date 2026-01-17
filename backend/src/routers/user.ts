@@ -1,4 +1,4 @@
-import { and, eq, like } from "drizzle-orm";
+import { and, eq, inArray, like, or } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
 import { conversationTable, messageTable, userTable } from "../db/schema.js";
@@ -229,6 +229,70 @@ export const fetchMessages = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log("Error in fetching the messages!", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// =================== Fetch Conversation Between Two Users ===================
+
+export const fetchConversation = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  // validate userId
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is invalid!" });
+  }
+
+  try {
+    // fetch conversations
+    const conversations = await db
+      .select()
+      .from(conversationTable)
+      .where(
+        or(
+          eq(conversationTable.user_one_id, userId),
+          eq(conversationTable.user_two_id, userId),
+        ),
+      );
+
+    // handle if no conversation exist
+    if (conversations.length === 0) {
+      return res.status(200).json({ conversations: [] });
+    }
+
+    // now check who is participant
+    const receiverIds = conversations.map((conv) =>
+      conv.user_one_id === userId ? conv.user_two_id : conv.user_one_id,
+    );
+
+    // now get receiver details
+    const receiverDetails = await db
+      .select({
+        id: userTable.id,
+        username: userTable.username,
+      })
+      .from(userTable)
+      .where(inArray(userTable.id, receiverIds));
+
+    // final sidebar ready response
+    const result = conversations.map((conv) => {
+      const receiverId = conv.user_one_id === userId ? conv.user_two_id : conv.user_one_id;
+
+      const receiver = receiverDetails.find((user) => user.id === receiverId);
+
+      return {
+        id: conv.id,
+        receiver: receiver,
+        lastMessage: conv.lastMessage,
+        lastMessageAt: conv.lastMessageAt,
+      };
+    });
+
+    return res.status(200).json({
+      result,
+    });
+  } catch (error) {
+    console.log("Error in fetching the conversation!", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

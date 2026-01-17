@@ -1,6 +1,7 @@
 import axios from "axios";
+import { AppConfig } from "../config/app.config";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = AppConfig.BackendURL;
 
 // =================== SignUp API ===================
 

@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Alert, AlertDescription } from "../../components/ui/alert";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import { Spinner } from "../../components/ui/spinner";
+import LoginForm from "../../components/auth/login-form";
+import SignupForm from "../../components/auth/signup-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { useLogin, useSignUp } from "../../hooks/use-auth";
 import { useCheckUsername } from "../../hooks/use-user";
+import { USERNAME_REGEX, validateUsername } from "../../lib/validation";
 import { useAuthFormStore } from "../../store/auth-store";
 
 const AuthForm = () => {
@@ -31,36 +29,8 @@ const AuthForm = () => {
     data: usernameData,
   } = useCheckUsername();
 
-  const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,19}$/;
-  const isValidUsernameFormat = usernameRegex.test(data.username);
-
-  // Get username validation message
-  const getUsernameValidationMessage = () => {
-    if (!data.username) {
-      return;
-    }
-    if (data.username.length < 5) {
-      return {
-        type: "error",
-        message: "Username must be at least 5 characters",
-      };
-    }
-    if (data.username.length > 20) {
-      return {
-        type: "error",
-        message: "Username must be 20 characters or less",
-      };
-    }
-    if (!isValidUsernameFormat) {
-      return {
-        type: "error",
-        message: "Only lowercase letters, numbers, and underscores allowed",
-      };
-    }
-    return null;
-  };
-
-  const usernameValidationMsg = getUsernameValidationMessage();
+  const isValidUsernameFormat = USERNAME_REGEX.test(data.username);
+  const usernameValidationMsg = validateUsername({ username: data.username });
 
   useEffect(() => {
     if (!isValidUsernameFormat) {
@@ -167,154 +137,35 @@ const AuthForm = () => {
           </div>
         )}
 
-        <form onSubmit={handleForm}>
-          <TabsContent value="login" className="space-y-4 mt-0">
-            <div className="space-y-2">
-              <Label htmlFor="login-email" className="text-sm font-medium text-white">
-                Email
-              </Label>
-              <Input
-                id="login-email"
-                name="email"
-                type="email"
-                value={data.email}
-                onChange={onchangeHandler}
-                placeholder="name@example.com"
-                className="h-11 text-gray-300"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="login-password" className="text-sm font-medium text-white">
-                  Password
-                </Label>
-              </div>
-              <Input
-                id="login-password"
-                name="password"
-                value={data.password}
-                type="password"
-                onChange={onchangeHandler}
-                placeholder="Enter your password"
-                className="h-11 text-gray-300"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              {loginError && (
-                <Alert variant="destructive">
-                  <AlertDescription>{loginError}</AlertDescription>
-                </Alert>
-              )}
-            </div>
-            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
-              {loginLoading ? <Spinner /> : "Log In"}
-            </Button>
-          </TabsContent>
+        {/* <form onSubmit={handleForm}> */}
+        <TabsContent value="login" className="space-y-4 mt-0">
+          <LoginForm
+            email={data.email}
+            password={data.password}
+            onchangeHandler={onchangeHandler}
+            handleForm={handleForm}
+            loginLoading={loginLoading}
+            loginError={loginError}
+          />
+        </TabsContent>
 
-          <TabsContent value="signup" className="space-y-4 mt-0">
-            <div className="space-y-2">
-              <Label htmlFor="signup-username" className="text-sm font-medium text-white">
-                Username
-              </Label>
-              <Input
-                id="signup-username"
-                name="username"
-                value={data.username}
-                onChange={onchangeHandler}
-                type="text"
-                placeholder="johndoe"
-                className="h-11 text-gray-300"
-                required
-              />
-            </div>
-            {/* Username validation feedback */}
-            <div className="space-y-2">
-              {usernameValidationMsg ? (
-                <Alert
-                  variant={usernameValidationMsg.type === "error" ? "destructive" : "default"}
-                >
-                  <AlertDescription>{usernameValidationMsg.message}</AlertDescription>
-                </Alert>
-              ) : isValidUsernameFormat ? (
-                usernameLoading ? (
-                  <div className="flex items-center gap-2 text-blue-500 text-sm">
-                    <Spinner />
-                    <span>Checking username availability...</span>
-                  </div>
-                ) : usernameError ? (
-                  <Alert variant="destructive">
-                    <AlertDescription>{usernameError}</AlertDescription>
-                  </Alert>
-                ) : usernameData ? (
-                  <p
-                    className={`text-sm ${
-                      usernameData.available ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
-                    {usernameData.message}
-                  </p>
-                ) : null
-              ) : null}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="signup-email" className="text-sm font-medium text-white">
-                Email
-              </Label>
-              <Input
-                id="signup-email"
-                name="email"
-                value={data.email}
-                onChange={onchangeHandler}
-                type="email"
-                placeholder="name@example.com"
-                className="h-11 text-gray-300"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="signup-password" className="text-sm font-medium text-white">
-                Password
-              </Label>
-              <Input
-                id="signup-password"
-                name="password"
-                value={data.password}
-                onChange={onchangeHandler}
-                type="password"
-                placeholder="Create a strong password"
-                className="h-11 text-gray-300"
-                required
-              />
-            </div>
-            {/* <div className="space-y-2">
-              <Label
-                htmlFor="signup-confirm-password"
-                className="text-sm font-medium text-white"
-              >
-                Confirm Password
-              </Label>
-              <Input
-                id="signup-confirm-password"
-                type="password"
-                placeholder="Confirm your password"
-                className="h-11 text-gray-300"
-              />
-            </div> */}
-            <div className="space-y-2">
-              {signError && (
-                <Alert variant="destructive">
-                  <AlertDescription>{signError}</AlertDescription>
-                </Alert>
-              )}
-            </div>
-            <Button type="submit" variant="secondary" className="w-full h-11 mt-6" size="lg">
-              {signupLoading ? <Spinner /> : "Create Account"}
-            </Button>
-          </TabsContent>
-        </form>
+        <TabsContent value="signup" className="space-y-4 mt-0">
+          <SignupForm
+            username={data.username}
+            email={data.email}
+            password={data.password}
+            onchangeHandler={onchangeHandler}
+            handleForm={handleForm}
+            signupLoading={signupLoading}
+            signError={signError}
+            usernameLoading={usernameLoading}
+            usernameError={usernameError}
+            usernameData={usernameData}
+            usernameValidationMsg={usernameValidationMsg}
+            isValidUsernameFormat={isValidUsernameFormat}
+          />
+        </TabsContent>
+        {/* </form> */}
       </Tabs>
 
       <div className="mt-6 text-center text-xs md:text-sm text-dark-20">

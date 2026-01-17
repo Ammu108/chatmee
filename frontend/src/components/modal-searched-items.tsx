@@ -1,13 +1,13 @@
 import { IconUserCircle } from "@tabler/icons-react";
 import { useSearchParams } from "react-router-dom";
-import type { UserData } from "../hooks/use-user";
+import type { SearchedUser } from "../types/user";
 
 interface ChatListItemsProps {
-  data: UserData[];
+  data: SearchedUser[];
   onSelectUser?: () => void;
 }
 
-const ModalOverlayItems = ({ data, onSelectUser }: ChatListItemsProps) => {
+const ModalSearchedItems = ({ data, onSelectUser }: ChatListItemsProps) => {
   const [, setSearchParams] = useSearchParams();
 
   const updateParams = (userId: string) => {
@@ -59,4 +59,4 @@ const ModalOverlayItems = ({ data, onSelectUser }: ChatListItemsProps) => {
   );
 };
 
-export default ModalOverlayItems;
+export default ModalSearchedItems;
