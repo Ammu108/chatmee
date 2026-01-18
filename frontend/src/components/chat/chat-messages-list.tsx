@@ -7,7 +7,7 @@ interface ChatMessagesProps {
     content: string;
     createdAt: string;
     conversation_id: string;
-    isRead: boolean;
+    // isRead: boolean;
   }[];
 }
 

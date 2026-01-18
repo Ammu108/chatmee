@@ -24,6 +24,10 @@ const DesktopSidebar = () => {
     }
   }, [fetchConversation, user, data]);
 
+  const onlineUsers = useAuthState((s) => s.onlineUsers);
+
+  // console.log("Online users are: ", onlineUsers);
+
   const renderConversationList = () => {
     if (loading) {
       return <LoadingState />;
@@ -37,7 +41,7 @@ const DesktopSidebar = () => {
       return <EmptyState message="No Chats found." />;
     }
 
-    return <ConversatinCard data={data} />;
+    return <ConversatinCard data={data} onlineUsers={onlineUsers} />;
   };
 
   return (

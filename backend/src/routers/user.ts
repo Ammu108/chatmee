@@ -2,6 +2,7 @@ import { and, eq, inArray, like, or } from "drizzle-orm";
 import type { Request, Response } from "express";
 import { db } from "../db/index.js";
 import { conversationTable, messageTable, userTable } from "../db/schema.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 import { normalizeUsername } from "../lib/utils.js";
 
 // =================== Find Users API ( via their unique email ) ===================
@@ -163,7 +164,25 @@ export const sendMessage = async (req: Request, res: Response) => {
       .set({ lastMessage: content, lastMessageAt: new Date() })
       .where(eq(conversationTable.id, conversationId));
 
-    // 8️⃣ Response
+    // 8️⃣ Emit to BOTH users in the conversation
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    const senderSocketId = getReceiverSocketId(senderId);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("new-message", {
+        conversationId,
+        message: newMessage,
+      });
+    }
+
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("new-message", {
+        conversationId,
+        message: newMessage,
+      });
+    }
+
+    // 9️⃣ Response
     return res.status(201).json({
       message: "Message sent successfully",
       conversationId,

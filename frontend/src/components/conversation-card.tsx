@@ -2,11 +2,16 @@ import { IconUserCircle } from "@tabler/icons-react";
 import { useSearchParams } from "react-router-dom";
 import type { ConversationData } from "../types/user";
 
-const ConversatinCard = ({ data }: { data: ConversationData[] }) => {
+const ConversatinCard = ({
+  data,
+  onlineUsers = [],
+}: {
+  data: ConversationData[];
+  onlineUsers?: string[];
+}) => {
   const [, setSearchParams] = useSearchParams();
 
   const updateParams = (userId: string) => {
-    // const userId = data?.searchedUser?.id;
     if (!userId) return;
 
     setSearchParams(
@@ -22,8 +27,6 @@ const ConversatinCard = ({ data }: { data: ConversationData[] }) => {
     );
   };
 
-  console.log("conversation card: ", data);
-
   return (
     <div className="overflow-y-auto space-y-3 pr-2">
       {data.map((conv) => {
@@ -37,8 +40,11 @@ const ConversatinCard = ({ data }: { data: ConversationData[] }) => {
             className="flex w-full flex-row items-center justify-between p-3 rounded-lg hover:bg-dark-40 cursor-pointer transition-colors duration-200"
           >
             <div className="flex flex-row gap-3 items-center flex-1 min-w-0">
-              <div>
+              <div className="relative">
                 <IconUserCircle className="text-gray-400 flex-shrink-0" size="46" />
+                {userId && onlineUsers?.includes(userId) && (
+                  <span className="h-4 w-4 border-2 border-dark-70 rounded-full absolute bottom-0 right-1 bg-green-400"></span>
+                )}
               </div>
               <div className="flex flex-col items-start justify-center min-w-0 flex-1">
                 <h4 className="font-semibold text-lg text-gray-200 truncate">
