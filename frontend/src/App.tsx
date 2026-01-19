@@ -7,7 +7,6 @@ import PrivacyPolicy from "./(public)/privacy-policy";
 import CHATMEE_GULL_LOGO from "./assets/chatmee-full-logo.png";
 import SearchModal from "./components/search-modal";
 import { TOAST_THEME } from "./config/app.config";
-import { SocketEffect } from "./lib/socketEffect";
 import { useAuthState } from "./store/auth-store";
 
 function App() {
@@ -32,7 +31,6 @@ function App() {
     );
   return (
     <div className="app">
-      <SocketEffect />
       <Routes>
         <Route path="/login" element={!user ? <Auth /> : <Navigate to="/" replace />} />
         <Route path="/signup" element={!user ? <Auth /> : <Navigate to="/" replace />} />

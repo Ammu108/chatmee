@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChatHeader from "../../components/chat/chat-header";
 import ChatMessagesList from "../../components/chat/chat-messages-list";
@@ -10,12 +10,9 @@ import {
 } from "../../components/common/state-components";
 import { Spinner } from "../../components/ui/spinner";
 import { useFetchMessages, useReceiverDetails } from "../../hooks/use-user";
-import { socket } from "../../lib/socket";
-import type { Message } from "../../types/message";
 import UserChatInput from "./user-chat-input";
 
 const UserChatSpace = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
   const {
     getReceiverDetails,
     data: dataReceiver,
@@ -33,41 +30,11 @@ const UserChatSpace = () => {
   const selectedChat = searchParams.get("chat");
 
   useEffect(() => {
-    if (!selectedChat) return;
-    getReceiverDetails(selectedChat);
-    fetchMessages(selectedChat).then((res) => {
-      if (res?.messages) {
-        setMessages(res.messages);
-      } else {
-        setMessages([]);
-      }
-    });
-  }, [selectedChat, fetchMessages, getReceiverDetails]);
-
-  // =========================
-  // 2️⃣ REAL-TIME INCOMING MESSAGES (SOCKET)
-  // =========================
-  useEffect(() => {
-    if (!selectedChat) return;
-
-    const handleNewMessage = ({ message }: { conversationId: string; message: Message }) => {
-      // Add message if it's part of the current conversation
-      // (either sent by us to them OR sent by them to us)
-      setMessages((prev) => {
-        // Prevent duplicates
-        if (prev.some((m) => m.id === message.id)) {
-          return prev;
-        }
-        return [...prev, message];
-      });
-    };
-
-    socket.on("new-message", handleNewMessage);
-
-    return () => {
-      socket.off("new-message", handleNewMessage);
-    };
-  }, [selectedChat]);
+    if (selectedChat) {
+      getReceiverDetails(selectedChat);
+      fetchMessages(selectedChat);
+    }
+  }, [selectedChat, getReceiverDetails, fetchMessages]);
 
   if (!selectedChat) {
     return <NoChatsSelected />;
@@ -92,15 +59,12 @@ const UserChatSpace = () => {
   return (
     <div className="bg-black h-screen relative flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* chat inbox header */}
-      <ChatHeader
-        username={dataReceiver.receiverData.username}
-        receiverId={dataReceiver.receiverData.id}
-      />
+      <ChatHeader username={dataReceiver.receiverData.username} />
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto py-6 space-y-4">
         {dataMessages?.conversationId ? (
-          <ChatMessagesList chatMessages={messages} />
+          <ChatMessagesList chatMessages={dataMessages.messages} />
         ) : (
           <div>
             <p className="text-white">no chats found</p>
@@ -132,10 +96,7 @@ const UserChatSpace = () => {
 
       {/* user chat input field */}
       <div className="w-full bg-dark-100 sticky bottom-0 z-50">
-        <UserChatInput
-          receiverId={dataReceiver.receiverData.id}
-          onMessageSent={(message) => setMessages((prev) => [...prev, message])}
-        />
+        <UserChatInput receiverId={dataReceiver.receiverData.id} />
       </div>
     </div>
   );

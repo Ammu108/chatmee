@@ -29,15 +29,12 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   checkAuth: () => Promise<void>;
-  onlineUsers: string[];
   setUser: (user: User | null) => void;
-  setOnlineUsers: (users: string[]) => void;
 }
 
 export const useAuthState = create<AuthState>((set) => ({
   user: null,
   loading: true,
-  onlineUsers: [],
 
   checkAuth: async () => {
     try {
@@ -51,6 +48,6 @@ export const useAuthState = create<AuthState>((set) => ({
       set({ user: null, loading: false });
     }
   },
+
   setUser: (user) => set({ user }),
-  setOnlineUsers: (users) => set({ onlineUsers: users }),
 }));
