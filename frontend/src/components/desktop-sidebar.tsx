@@ -19,10 +19,10 @@ const DesktopSidebar = () => {
   };
 
   useEffect(() => {
-    if (user && data.length === 0) {
+    if (user) {
       fetchConversation();
     }
-  }, [fetchConversation, user, data]);
+  }, [fetchConversation, user]);
 
   const renderConversationList = () => {
     if (loading) {
@@ -33,7 +33,7 @@ const DesktopSidebar = () => {
       return <ErrorState dataError={error ?? "Failed to load conversations."} />;
     }
 
-    if (data.length === 0) {
+    if (!data) {
       return <EmptyState message="No Chats found." />;
     }
 
