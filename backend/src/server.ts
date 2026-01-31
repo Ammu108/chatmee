@@ -6,9 +6,9 @@ dotenv.config();
 
 import cookieParser from "cookie-parser";
 import express from "express";
+import { app, server } from "./lib/socket.js";
 import router from "./routers/router.js";
 
-const app = express();
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -22,6 +22,6 @@ app.use(cookieParser());
 
 app.use("/api/auth", router);
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server is running on port : ${process.env.PORT}`);
 });

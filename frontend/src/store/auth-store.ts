@@ -1,7 +1,9 @@
 import axios from "axios";
 import { create } from "zustand";
+import { AppConfig } from "../config/app.config";
+import type { User } from "../types/user";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = AppConfig.BackendURL;
 
 // =================== Active tab state management ===================
 
@@ -22,14 +24,6 @@ export const useAuthFormStore = create<AuthFormTabState>((set) => ({
 }));
 
 // =================== Check user is authenticated ===================
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 interface AuthState {
   user: User | null;

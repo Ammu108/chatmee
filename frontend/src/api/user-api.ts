@@ -53,11 +53,6 @@ export const findReceiverDetailsApi = async (receiverid: string) => {
 
 // =================== Send Messages Between Two Users ===================
 
-// interface SendMessagePayload {
-//   receiverId: string;
-//   content: string;
-// }
-
 export const sendMessagesApi = async (receiverId: string, content: string) => {
   try {
     const res = await axiosInstance.post(
@@ -88,6 +83,21 @@ export const fetchMessagesApi = async (receiverId: string) => {
     const errorMessage = axios.isAxiosError(error)
       ? error.response?.data?.message
       : "Fetching the messages failed!";
+    throw new Error(errorMessage);
+  }
+};
+
+// =================== Fetching Conversations ===================
+
+export const fetchConversationApi = async () => {
+  try {
+    const res = await axiosInstance.get(`auth/messages`, { withCredentials: true });
+
+    return res.data;
+  } catch (error) {
+    const errorMessage = axios.isAxiosError(error)
+      ? error.response?.data?.message
+      : "Fetching the conversation failed!";
     throw new Error(errorMessage);
   }
 };

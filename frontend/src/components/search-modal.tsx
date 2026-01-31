@@ -3,7 +3,7 @@ import type React from "react";
 import { useState } from "react";
 import { useSearchUsers } from "../hooks/use-user";
 import { useModalStore } from "../store/modal-store";
-import ModalOverlayItems from "./searched-list";
+import ModalSearchedItems from "./modal-searched-items";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Spinner } from "./ui/spinner";
@@ -55,7 +55,7 @@ const SearchModal = () => {
       );
     }
 
-    return <ModalOverlayItems data={data} onSelectUser={closeSearch} />;
+    return <ModalSearchedItems data={data} onSelectUser={closeSearch} />;
   };
 
   return (
